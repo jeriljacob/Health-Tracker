@@ -1,5 +1,6 @@
 package com.psquickit.manager;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,29 +19,32 @@ import com.psquickit.pojo.health.record.UploadPrescriptionResponse;
 
 public interface HealthRecordManager {
 
-	GetHealthRecordResponse getHealthRecord(String authToken);
+	GetHealthRecordResponse getHealthRecord(String authToken) throws Exception;
 
-	GetTestNameValueReportResponse addTestNameValue(String authToken, AddTestNameValue request);
+	GetTestNameValueReportResponse addTestNameValue(String authToken, AddTestNameValue request) throws Exception;
 
-	GetTestNameValueReportResponse updateTestNameValue(String authToken, UpdateTestNameValue request);
+	GetTestNameValueReportResponse updateTestNameValue(String authToken, UpdateTestNameValue request) throws Exception;
 
-	GetTestNameValueReportResponse getTestNameValueReport(String authToken);
+	GetTestNameValueReportResponse getTestNameValueReport(String authToken, long healthRecordId) throws Exception;
 
-	DeleteTestResponse deleteTest(String authToken, List<Long> ids);
+	DeleteTestResponse deleteTest(String authToken, List<Long> ids) throws Exception;
 
-	GetTestNameValueReportResponse addTestNameReport(String authToken, String testName, MultipartFile testReport);
+	GetTestNameValueReportResponse addTestNameReport(String authToken, String healthRecordId,
+			Date healthRecordDate, String testName, MultipartFile[] testReports) throws Exception;
 
-	void getTestNameReport(String authToken, long testReportId, HttpServletResponse httpResponse);
+	void getTestNameReport(String authToken, long testReportId, HttpServletResponse httpResponse) throws Exception;
 
-	UploadPrescriptionResponse uploadPrescription(String authToken, MultipartFile[] prescription);
+	UploadPrescriptionResponse uploadPrescription(String authToken, String healthRecordId,
+			Date healthRecordDate, MultipartFile[] prescriptions) throws Exception;
 
-	UploadDiagnosisResponse uploadDiagnosis(String authToken, MultipartFile[] diagnosis);
+	UploadDiagnosisResponse uploadDiagnosis(String authToken, String healthRecordId,
+			Date healthRecordDate, String diagnosisName, MultipartFile[] diagnosises) throws Exception;
 
-	void getPrescription(String authToken, long prescriptionId, HttpServletResponse httpResponse);
+	void getPrescription(String authToken, long prescriptionId, HttpServletResponse httpResponse) throws Exception;
 
-	void getDiagnosis(String authToken, long diagnosisId, HttpServletResponse httpResponse);
+	void getDiagnosis(String authToken, long diagnosisId, HttpServletResponse httpResponse) throws Exception;
 
-	DeletePrescriptionResponse deletePrescription(String authToken, List<Long> prescriptionIds);
+	DeletePrescriptionResponse deletePrescription(String authToken, List<Long> prescriptionIds) throws Exception;
 
-	DeleteDiagnosisResponse deleteDiagnosis(String authToken, List<Long> diagnosisIds);
+	DeleteDiagnosisResponse deleteDiagnosis(String authToken, List<Long> diagnosisIds) throws Exception;
 }

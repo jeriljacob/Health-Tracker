@@ -7,13 +7,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.psquickit.dto.SubTestNameValueDTO;
+import com.psquickit.dto.TestReportFileDTO;
 
 @Repository
-public interface SubTestNameValueDAO extends JpaRepository<SubTestNameValueDTO, Long> {
+public interface TestReportFileDAO extends JpaRepository<TestReportFileDTO, Long> {
 
-	@Query("Select s from SubTestNameValueDTO s where s.usertestnamevaluereport.id = :userTestNameValueReportId")
-	List<SubTestNameValueDTO> listSubTestNameValueByUserTestNameValueReportId(
+	@Query("Select t from TestReportFileDTO t where t.usertestnamevaluereport.id = :userTestNameValueReportId")
+	List<TestReportFileDTO> listTestReportFileByUserTestNameValueReportId(
 			@Param("userTestNameValueReportId") Long userTestNameValueReportId);
 
 }

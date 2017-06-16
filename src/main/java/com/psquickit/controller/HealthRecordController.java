@@ -1,11 +1,13 @@
 package com.psquickit.controller;
 
+import java.sql.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +28,6 @@ import com.psquickit.pojo.health.record.GetHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
 import com.psquickit.pojo.health.record.UpdateTestNameValue;
 import com.psquickit.pojo.health.record.UploadDiagnosisResponse;
-import com.psquickit.pojo.health.record.UploadHealthRecordResponse;
 import com.psquickit.pojo.health.record.UploadPrescriptionResponse;
 import com.psquickit.util.ServiceUtils;
 
@@ -79,13 +80,14 @@ public class HealthRecordController {
 		return response;
 	}
 	
-	@RequestMapping(value = "/get/testnamevaluereport", method = RequestMethod.GET)
+	@RequestMapping(value = "/get/testnamevaluereport/{healthrecordid}", method = RequestMethod.GET)
 	public @ResponseBody GetTestNameValueReportResponse getTestNameValue(
-			@RequestHeader(value="authToken", required=true) String authToken
+			@RequestHeader(value="authToken", required=true) String authToken,
+			@PathVariable(value="healthrecordid") String healthRecordId
 			) {
 		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
 		try {
-			response = manager.getTestNameValueReport(authToken);
+			response = manager.getTestNameValueReport(authToken, Long.parseLong(healthRecordId));
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "Upload health record", e);
 		}
@@ -113,12 +115,14 @@ public class HealthRecordController {
 	@RequestMapping(value = "/add/testnamereport", method = RequestMethod.POST)
 	public @ResponseBody GetTestNameValueReportResponse addTestNameValue(
 			@RequestHeader(value="authToken", required=true) String authToken,
-			@RequestPart(value="testname", required=true) String testName,
-			@RequestPart(value="testreport", required=true) MultipartFile testReport
+			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
+			@RequestParam(value="healthRecordDate", required=false) Date healthRecordDate,
+			@RequestParam(value="testname", required=true) String testName,
+			@RequestPart(value="testreport", required=true) MultipartFile[] testReports
 			) {
 		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
 		try {
-			response = manager.addTestNameReport(authToken, testName, testReport);
+			response = manager.addTestNameReport(authToken, healthRecordId, healthRecordDate, testName, testReports);
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "Upload health record", e);
 		}
@@ -141,11 +145,13 @@ public class HealthRecordController {
 	@RequestMapping(value = "/upload/prescription", method = RequestMethod.POST, headers = "content-type=multipart/form-data")
 	public @ResponseBody UploadPrescriptionResponse uploadPrescription(
 			@RequestHeader(value="authToken", required=true) String authToken,
-			@RequestPart(value = "prescription", required=true) MultipartFile[] prescription
+			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
+			@RequestParam(value="healthRecordDate", required=false) Date healthRecordDate,
+			@RequestPart(value = "prescription", required=true) MultipartFile[] prescriptions
 			) {
 		UploadPrescriptionResponse response = new UploadPrescriptionResponse();
 		try {
-			response = manager.uploadPrescription(authToken, prescription);
+			response = manager.uploadPrescription(authToken, healthRecordId, healthRecordDate, prescriptions);
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "Upload health record", e);
 		}
@@ -155,11 +161,14 @@ public class HealthRecordController {
 	@RequestMapping(value = "/upload/diagnosis", method = RequestMethod.POST, headers = "content-type=multipart/form-data")
 	public @ResponseBody UploadDiagnosisResponse uploadDiagnosis(
 			@RequestHeader(value="authToken", required=true) String authToken,
-			@RequestPart(value = "diagnosis", required=true) MultipartFile[] diagnosis
+			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
+			@RequestParam(value="healthRecordDate", required=false) Date healthRecordDate,
+			@RequestParam(value="diagnosisName", required=true) String diagnosisName,
+			@RequestPart(value = "diagnosis", required=true) MultipartFile[] diagnosises
 			) {
 		UploadDiagnosisResponse response = new UploadDiagnosisResponse();
 		try {
-			response = manager.uploadDiagnosis(authToken, diagnosis);
+			response = manager.uploadDiagnosis(authToken, healthRecordId, healthRecordDate, diagnosisName, diagnosises);
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "Upload health record", e);
 		}
@@ -180,19 +189,17 @@ public class HealthRecordController {
 	}
 	
 	@RequestMapping(value = "/get/diagnosis/{id}", method = RequestMethod.GET)
-	public @ResponseBody UploadHealthRecordResponse getDiagnosis(
+	public void getDiagnosis(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="id") String id,
 			final HttpServletResponse httpResponse
 			) {
-		UploadHealthRecordResponse response = new UploadHealthRecordResponse();
 		try {
 			long diagnosisId = Long.parseLong(id);
 			manager.getDiagnosis(authToken, diagnosisId, httpResponse);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			setHttpException(e, httpResponse);
 		}
-		return response;
 	}
 	
 	@RequestMapping(value = "/delete/prescription", method = RequestMethod.DELETE)

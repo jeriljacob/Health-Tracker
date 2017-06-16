@@ -13,8 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.psquickit.common.HandledException;
+import com.psquickit.dao.AddressDAO;
 import com.psquickit.dao.UserDAO;
+import com.psquickit.dto.AddressDTO;
 import com.psquickit.dto.FileStoreDTO;
 import com.psquickit.dto.UserDTO;
 import com.psquickit.manager.AuthenticationManager;
@@ -36,6 +39,9 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 
 	@Autowired
 	UserDAO userDAO;
+	
+	@Autowired
+	AddressDAO addressDAO;
 
 	@Autowired
 	FileStoreManager fileStoreManager;
@@ -69,8 +75,10 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 
 	private IndividualUserRegisterResponse registerUser(IndividualUserRegisterRequest request,
 			FileStoreDTO profilePicFileStoreDTO) {
-		UserDTO userDTO;
-		userDTO = UserCommonManagerImpl.createUserDTO(request, profilePicFileStoreDTO);
+		AddressDTO alternateAddressDTO = UserCommonManagerImpl.populateAlternateAddressDTO(request);
+		AddressDTO permanentAddressDTO = UserCommonManagerImpl.populatePermanentAddressDTO(request);
+		addressDAO.save(Lists.newArrayList(alternateAddressDTO, permanentAddressDTO));
+		UserDTO userDTO = UserCommonManagerImpl.createUserDTO(request, profilePicFileStoreDTO, alternateAddressDTO, permanentAddressDTO);
 		userDAO.save(userDTO);
 		IndividualUserRegisterResponse response = new IndividualUserRegisterResponse();
 		return ServiceUtils.setResponse(response, true, "Register User");
@@ -106,12 +114,17 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 			}
 		}
 		
-		return updateUser(request, userDTO, profilePicFileStoreDTO);
+		AddressDTO alternateAddressDTO = UserCommonManagerImpl.populateAlternateAddressDTO(request, userDTO.getAlternateAddress());
+		AddressDTO permanentAddressDTO = UserCommonManagerImpl.populatePermanentAddressDTO(request, userDTO.getPermanentAddress());
+		addressDAO.save(Lists.newArrayList(alternateAddressDTO, permanentAddressDTO));
+		
+		return updateUser(request, userDTO, profilePicFileStoreDTO, alternateAddressDTO, permanentAddressDTO);
 	}
-
+	
 	private IndividualUserUpdateResponse updateUser(IndividualUserUpdateRequest request, UserDTO userDTO,
-			FileStoreDTO profilePicFileStoreDTO) {
-		userDTO = UserCommonManagerImpl.updateUserDTO(request, userDTO, profilePicFileStoreDTO);
+			FileStoreDTO profilePicFileStoreDTO, AddressDTO alternateAddressDTO, AddressDTO permanentAddressDTO) {
+		userDTO = UserCommonManagerImpl.updateUserDTO(request, userDTO, profilePicFileStoreDTO,
+				alternateAddressDTO, permanentAddressDTO);
 		userDAO.save(userDTO);
 		IndividualUserUpdateResponse response = new IndividualUserUpdateResponse();
 		response.setId(userDTO.getAadhaarNumber());
@@ -145,7 +158,11 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 			profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getAadhaarNumber());
 		}
 		
-		return updateUser(request, userDTO, profilePicFileStoreDTO);
+		AddressDTO alternateAddressDTO = UserCommonManagerImpl.populateAlternateAddressDTO(request, userDTO.getAlternateAddress());
+		AddressDTO permanentAddressDTO = UserCommonManagerImpl.populatePermanentAddressDTO(request, userDTO.getPermanentAddress());
+		addressDAO.save(Lists.newArrayList(alternateAddressDTO, permanentAddressDTO));
+		
+		return updateUser(request, userDTO, profilePicFileStoreDTO, alternateAddressDTO, permanentAddressDTO);
 	}
 	
 	@Override

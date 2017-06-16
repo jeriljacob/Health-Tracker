@@ -15,6 +15,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.psquickit.common.HandledException;
 import com.psquickit.common.UserType;
+import com.psquickit.dao.AddressDAO;
 import com.psquickit.dao.DegreeMasterDAO;
 import com.psquickit.dao.DoctorClinicAddressDAO;
 import com.psquickit.dao.DoctorDegreeDAO;
@@ -86,9 +87,11 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 	public DoctorMciDAO doctorMciDAO;
 	
 	@Autowired
+	public AddressDAO addressDAO;
+	
+	@Autowired
 	public DoctorClinicAddressDAO doctorClinicAddressDAO;
-	
-	
+		
 	@Autowired
 	FileStoreManager fileStoreManager;
 	
@@ -119,8 +122,12 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 
 	private DoctorUserRegisterResponse registerDoctor(String secretToken, DoctorUserRegisterRequest request,
 			FileStoreDTO profilePicFileStoreDTO) {
-		UserDTO userDTO;
-		userDTO = UserCommonManagerImpl.createUserDTO(request, profilePicFileStoreDTO);
+		
+		AddressDTO alternateAddressDTO = UserCommonManagerImpl.populateAlternateAddressDTO(request);
+		AddressDTO permanentAddressDTO = UserCommonManagerImpl.populatePermanentAddressDTO(request);
+		addressDAO.save(Lists.newArrayList(alternateAddressDTO, permanentAddressDTO));
+		
+		UserDTO userDTO = UserCommonManagerImpl.createUserDTO(request, profilePicFileStoreDTO, alternateAddressDTO, permanentAddressDTO);
 		userDTO = userDAO.save(userDTO);
 		
 		DoctorUserDTO doctorUserDTO = createDoctorDTO(request, userDTO, profilePicFileStoreDTO);
@@ -144,6 +151,8 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
             addressDTO.setDistrict(address.getDistrict());
             addressDTO.setState(address.getState());
             addressDTO.setPincode(address.getPincode());
+            addressDAO.save(addressDTO);
+            
             doctorClinicAddressDTO.setAddress(addressDTO);
             doctorClinicAddressDTO.setDoctoruser(doctorUserDTO);
             listDoctorClinicAddressDTO.add(doctorClinicAddressDTO);
@@ -289,7 +298,11 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 
 	private DoctorUserUpdateResponse updateDoctor(DoctorUserUpdateRequest request, DoctorUserDTO doctorUserDTO,
 			FileStoreDTO profilePicFileStoreDTO) {
-		UserDTO userDTO = UserCommonManagerImpl.updateUserDTO(request, doctorUserDTO.getUser(), profilePicFileStoreDTO);
+		AddressDTO alternateAddressDTO = UserCommonManagerImpl.populateAlternateAddressDTO(request, doctorUserDTO.getUser().getAlternateAddress());
+		AddressDTO permanentAddressDTO = UserCommonManagerImpl.populatePermanentAddressDTO(request, doctorUserDTO.getUser().getPermanentAddress());
+		addressDAO.save(Lists.newArrayList(alternateAddressDTO, permanentAddressDTO));
+		
+		UserDTO userDTO = UserCommonManagerImpl.updateUserDTO(request, doctorUserDTO.getUser(), profilePicFileStoreDTO, alternateAddressDTO, permanentAddressDTO);
 		doctorUserDTO = updateDoctorUserDTO(request, doctorUserDTO, userDTO);
 		doctorUserDAO.save(doctorUserDTO);
 		

@@ -16,6 +16,7 @@ import com.google.common.collect.Lists;
 import com.psquickit.common.HandledException;
 import com.psquickit.common.UserType;
 import com.psquickit.dao.DegreeMasterDAO;
+import com.psquickit.dao.DoctorClinicAddressDAO;
 import com.psquickit.dao.DoctorDegreeDAO;
 import com.psquickit.dao.DoctorMciDAO;
 import com.psquickit.dao.DoctorSpecializationDAO;
@@ -23,7 +24,9 @@ import com.psquickit.dao.DoctorUserDAO;
 import com.psquickit.dao.MCIMasterDAO;
 import com.psquickit.dao.SpecializationMasterDAO;
 import com.psquickit.dao.UserDAO;
+import com.psquickit.dto.AddressDTO;
 import com.psquickit.dto.DegreeMasterDTO;
+import com.psquickit.dto.DoctorClinicAddressDTO;
 import com.psquickit.dto.DoctorDegreeDTO;
 import com.psquickit.dto.DoctorMciDTO;
 import com.psquickit.dto.DoctorSpecializationDTO;
@@ -35,6 +38,7 @@ import com.psquickit.dto.UserDTO;
 import com.psquickit.manager.AuthenticationManager;
 import com.psquickit.manager.DoctorUserManager;
 import com.psquickit.manager.FileStoreManager;
+import com.psquickit.pojo.user.Address;
 import com.psquickit.pojo.user.Degree;
 import com.psquickit.pojo.user.DoctorDegree;
 import com.psquickit.pojo.user.DoctorMci;
@@ -82,6 +86,10 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 	public DoctorMciDAO doctorMciDAO;
 	
 	@Autowired
+	public DoctorClinicAddressDAO doctorClinicAddressDAO;
+	
+	
+	@Autowired
 	FileStoreManager fileStoreManager;
 	
 	@Autowired
@@ -117,6 +125,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		
 		DoctorUserDTO doctorUserDTO = createDoctorDTO(request, userDTO, profilePicFileStoreDTO);
 		doctorUserDTO = doctorUserDAO.save(doctorUserDTO);
+		saveDoctorClinicAddresses(request.getClinicAddress(), doctorUserDTO);
 		saveDoctorDegrees(request.getDegrees(), doctorUserDTO);
 		saveDoctorMcis(request.getMciReg(), doctorUserDTO);
 		saveDoctorSpecializations(request.getSpecialization(), doctorUserDTO);
@@ -125,6 +134,24 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		return ServiceUtils.setResponse(response, true, "Register Doctor User");
 	}
 	
+	private void saveDoctorClinicAddresses(List<Address> clinicAddresses, DoctorUserDTO doctorUserDTO) {
+		List<DoctorClinicAddressDTO> listDoctorClinicAddressDTO = Lists.newArrayList();
+		for (Address address : clinicAddresses) {
+        	DoctorClinicAddressDTO doctorClinicAddressDTO = new DoctorClinicAddressDTO(); 
+        	AddressDTO addressDTO = new AddressDTO();
+            addressDTO.setStreet(address.getStreet());
+            addressDTO.setCity(address.getCity());
+            addressDTO.setDistrict(address.getDistrict());
+            addressDTO.setState(address.getState());
+            addressDTO.setPincode(address.getPincode());
+            doctorClinicAddressDTO.setAddress(addressDTO);
+            doctorClinicAddressDTO.setDoctoruser(doctorUserDTO);
+            listDoctorClinicAddressDTO.add(doctorClinicAddressDTO);
+        }
+        doctorClinicAddressDAO.save(listDoctorClinicAddressDTO);
+		
+	}
+
 	@Override
 	@Transactional(rollbackOn=Exception.class)
 	public DoctorUserRegisterResponse registerDoctor(String secretToken, DoctorUserRegisterRequest request) throws Exception {
@@ -316,10 +343,8 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 
 	private <T extends DoctorUserDetails> DoctorUserDTO updateDoctorUserDTO(T request, DoctorUserDTO doctorUserDTO, UserDTO userDTO) {
 		doctorUserDTO.setUser(userDTO);
-		doctorUserDTO.setClinicAddress(request.getClinicAddress());
 		doctorUserDTO.setClinicContactNumber(request.getClinicContactNo());
 		doctorUserDTO.setClinicAlternateContactNumber(request.getAlternateContactNo());
-		doctorUserDTO.setPracticeArea(request.getPracticeArea());
 		doctorUserDTO.setInPersonConsultant(request.getInPersonConsultant());
 		doctorUserDTO.setEConsultant(request.getEConsultant());
 		return doctorUserDTO;
@@ -336,14 +361,14 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 			List<DoctorDegreeDTO> doctorDegreeDTOs = doctorDegreeDAO.listDegreeByDoctorId(doctorUserDTO.getId());
 			List<DoctorSpecializationDTO> doctorSpecializationDTOs = doctorSpecializationDAO.listSpecializationByDoctorId(doctorUserDTO.getId());
 			List<DoctorMciDTO> doctorMciDTOs = doctorMciDAO.listMciByDoctorId(doctorUserDTO.getId());
+			List<DoctorClinicAddressDTO> clinicAddressDTOs = doctorClinicAddressDAO.listDoctorClinicAddressByDoctorId(doctorUserDTO.getId());
 			DoctorUserDetails details = new DoctorUserDetails();
 			
 			FileStoreDTO profilePicFileStoreDTO = userDTO.getProfileImageFileStore();
 			String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
 			
 			details = UserCommonManagerImpl.toBasicUserDetails(details, doctorUserDTO.getUser(), profileImage);
-			details.setClinicAddress(doctorUserDTO.getClinicAddress());
-			details.setPracticeArea(doctorUserDTO.getPracticeArea());
+			details.getClinicAddress().addAll(toDoctorClinicAddress(clinicAddressDTOs));
 			details.setInPersonConsultant(doctorUserDTO.getInPersonConsultant());
 			details.setEConsultant(doctorUserDTO.getEConsultant());
 			details.setClinicContactNo(doctorUserDTO.getClinicContactNumber());
@@ -356,6 +381,21 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		}
 		
 		return ServiceUtils.setResponse(response, true, "Get User Details");
+	}
+
+	private List<Address> toDoctorClinicAddress(List<DoctorClinicAddressDTO> dtos) {
+		List<Address> list= Lists.newArrayList();
+		for(DoctorClinicAddressDTO dto: dtos){
+            Address address = new Address();
+            address.setId(Long.toString(dto.getAddress().getId()));
+            address.setCity(dto.getAddress().getCity());
+            address.setStreet(dto.getAddress().getStreet());
+            address.setDistrict(dto.getAddress().getDistrict());
+            address.setState(dto.getAddress().getState());
+            address.setPincode(dto.getAddress().getPincode());
+            list.add(address);
+        }
+		return list;
 	}
 
 	private List<DoctorMci> toDoctorMci(List<DoctorMciDTO> doctorMciDTOs) {

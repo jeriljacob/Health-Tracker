@@ -4,9 +4,14 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.psquickit.dao.SubTestNameValueDAO;
+import com.psquickit.dao.UserTestNameValueReportDAO;
+import com.psquickit.dto.SubTestNameValueDTO;
+import com.psquickit.dto.UserTestNameValueReportDTO;
 import com.psquickit.manager.HealthRecordManager;
 import com.psquickit.pojo.health.record.AddTestNameValue;
 import com.psquickit.pojo.health.record.DeleteDiagnosisResponse;
@@ -23,6 +28,12 @@ import com.psquickit.util.ServiceUtils;
 @Service
 public class HealthRecordManagerImpl implements HealthRecordManager {
 
+	@Autowired
+	UserTestNameValueReportDAO userTestNameValueReportDAO;
+	
+	@Autowired
+	SubTestNameValueDAO subTestNameValueDAO;
+	
 	@Override
 	public GetHealthRecordResponse getHealthRecord(String authToken) {
 		// TODO Auto-generated method stub
@@ -33,21 +44,23 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	public GetTestNameValueReportResponse addTestNameValue(String authToken, AddTestNameValue request) {
 		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
 		List<TestNameValue> testNameValues = request.getTestNameValue();
-		String name = null;
-		String value = null;
-		String range = null;
-		String unit = null;
 		for (TestNameValue testNameValue: testNameValues) {
-			name = testNameValue.getTestName();
-			value = testNameValue.getTestValue();
-			range = testNameValue.getTestRange();
-			unit = testNameValue.getTestUnit();
+			UserTestNameValueReportDTO tdto = new UserTestNameValueReportDTO();
+			tdto.setTestName(testNameValue.getTestName());
+			tdto.setTestValue(testNameValue.getTestValue());
+			tdto.setTestValuesRange(testNameValue.getTestRange());
+			tdto.setUnit(testNameValue.getTestUnit());
+			userTestNameValueReportDAO.save(tdto);
+			
 			List<TestNameValue> subTestNameValues = testNameValue.getSubTestNameValue();
 			for (TestNameValue subTestNameValue: subTestNameValues) {
-				name = subTestNameValue.getTestName();
-				value = subTestNameValue.getTestValue();
-				range = subTestNameValue.getTestRange();
-				unit = subTestNameValue.getTestUnit();
+				SubTestNameValueDTO stdto = new SubTestNameValueDTO();
+				stdto.setTestName(subTestNameValue.getTestName());
+				stdto.setTestValue(subTestNameValue.getTestValue());
+				stdto.setTestValuesRange(subTestNameValue.getTestRange());
+				stdto.setUnit(subTestNameValue.getTestUnit());
+				stdto.setUsertestnamevaluereport(tdto);
+				subTestNameValueDAO.save(stdto);
 			}
 		}
 		return ServiceUtils.setResponse(response, true, "Add test name value");

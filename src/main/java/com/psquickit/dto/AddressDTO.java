@@ -195,14 +195,14 @@ public class AddressDTO implements Serializable {
 
 	public UserDTO addUsers1(UserDTO users1) {
 		getUsers1().add(users1);
-		users1.setAddress1(this);
+		users1.setAlternateAddress(this);
 
 		return users1;
 	}
 
 	public UserDTO removeUsers1(UserDTO users1) {
 		getUsers1().remove(users1);
-		users1.setAddress1(null);
+		users1.setAlternateAddress(null);
 
 		return users1;
 	}
@@ -217,14 +217,14 @@ public class AddressDTO implements Serializable {
 
 	public UserDTO addUsers2(UserDTO users2) {
 		getUsers2().add(users2);
-		users2.setAddress2(this);
+		users2.setPermanentAddress(this);
 
 		return users2;
 	}
 
 	public UserDTO removeUsers2(UserDTO users2) {
 		getUsers2().remove(users2);
-		users2.setAddress2(null);
+		users2.setPermanentAddress(null);
 
 		return users2;
 	}

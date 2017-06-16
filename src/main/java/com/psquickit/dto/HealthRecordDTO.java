@@ -11,8 +11,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 
 /**
@@ -32,7 +30,6 @@ public class HealthRecordDTO implements Serializable {
 
 	private Timestamp createdOn;
 
-	@Temporal(TemporalType.DATE)
 	private Timestamp recordDate;
 
 	private Long updatedBy;

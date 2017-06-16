@@ -10,7 +10,7 @@ import com.psquickit.dto.DoctorUserDTO;
 @Repository
 public interface DoctorUserDAO extends JpaRepository<DoctorUserDTO, Long> {
 
-	@Query("Select doc from DoctorUserDTO doc where doc.userDTO.id = :id")
+	@Query("Select doc from DoctorUserDTO doc where doc.user.id = :id")
 	public DoctorUserDTO getDoctorUserByUserId(@Param("id") Long id);
 
 }

@@ -12,8 +12,8 @@
 		<xs:complexContent>
 			<xs:extension base="ns2:basicUserDetails">
 				<xs:sequence>
-					<xs:element name="clinicAddress" type="xs:string" />
-					<xs:element name="practiceArea" type="xs:string" />
+					<xs:element name="clinicAddress" type="ns2:address" maxOccurs="unbounded"/>
+					<xs:element name="practiceArea" type="ns2:address" />
 					<xs:element name="inPersonConsultant" type="xs:string" />
 					<xs:element name="eConsultant" type="xs:string" />
 					<xs:element name="clinicContactNo" type="xs:string" />

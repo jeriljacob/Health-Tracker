@@ -6,6 +6,17 @@
 	<xs:import namespace="http://api.psquickit.com/common"
 		schemaLocation="generic-service-response.xsd" />
 
+	<xs:complexType name="address">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string" />
+            <xs:element name="street" type="xs:string" />
+            <xs:element name="city" type="xs:string" />
+            <xs:element name="district" type="xs:string" />
+            <xs:element name="state" type="xs:string" />
+            <xs:element name="pincode" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+	
 	<xs:complexType name="basicUserDetails">
 		<xs:sequence>
 			<xs:element name="aadhaarNumber" type="xs:string" />
@@ -13,8 +24,8 @@
 			<xs:element name="lastName" type="xs:string"/>
 			<xs:element name="contactNo" type="xs:string"/>
 			<xs:element name="alternateContactNo" type="xs:string"/>
-			<xs:element name="alternateAddress" type="xs:string"/>
-			<xs:element name="permanentAddress" type="xs:string" />
+			<xs:element name="alternateAddress" type="tns:address"/>
+			<xs:element name="permanentAddress" type="tns:address" />
 			<xs:element name="userType" type="xs:string"/>
 			<xs:element name="profileImg" type="xs:string" />
 			<xs:element name="email" type="xs:string" />

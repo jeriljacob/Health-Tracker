@@ -12,6 +12,6 @@ import com.psquickit.dto.DoctorDegreeDTO;
 @Repository
 public interface DoctorDegreeDAO extends JpaRepository<DoctorDegreeDTO, Long> {
 
-	@Query("Select d from DoctorDegreeDTO d where d.doctorUserDTO.id = :id")
+	@Query("Select d from DoctorDegreeDTO d where d.doctoruser.id = :id")
 	public List<DoctorDegreeDTO> listDegreeByDoctorId(@Param("id") Long id);
 }

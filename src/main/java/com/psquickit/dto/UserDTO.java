@@ -266,19 +266,19 @@ public class UserDTO implements Serializable {
 		return shareduserrecords2;
 	}
 
-	public AddressDTO getAddress1() {
+	public AddressDTO getAlternateAddress() {
 		return this.alternateAddress;
 	}
 
-	public void setAddress1(AddressDTO alternateAddress) {
+	public void setAlternateAddress(AddressDTO alternateAddress) {
 		this.alternateAddress = alternateAddress;
 	}
 
-	public AddressDTO getAddress2() {
+	public AddressDTO getPermanentAddress() {
 		return this.permanentAddress;
 	}
 
-	public void setAddress2(AddressDTO permanentAddress) {
+	public void setPermanentAddress(AddressDTO permanentAddress) {
 		this.permanentAddress = permanentAddress;
 	}
 

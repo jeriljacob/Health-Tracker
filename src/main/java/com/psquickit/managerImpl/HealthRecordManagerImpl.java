@@ -20,6 +20,7 @@ import com.psquickit.pojo.health.record.DeleteTestResponse;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
 import com.psquickit.pojo.health.record.TestNameValue;
+import com.psquickit.pojo.health.record.TestNameValueById;
 import com.psquickit.pojo.health.record.UpdateTestNameValue;
 import com.psquickit.pojo.health.record.UploadDiagnosisResponse;
 import com.psquickit.pojo.health.record.UploadPrescriptionResponse;
@@ -63,12 +64,35 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 				subTestNameValueDAO.save(stdto);
 			}
 		}
+		
 		return ServiceUtils.setResponse(response, true, "Add test name value");
 	}
 
 	@Override
 	public GetTestNameValueReportResponse updateTestNameValue(String authToken, UpdateTestNameValue request) {
 		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
+
+		List<TestNameValueById> testNameValuesById = request.getTestNameValueById();
+		for (TestNameValueById testNameValueById: testNameValuesById) {
+			UserTestNameValueReportDTO tdto = new UserTestNameValueReportDTO();
+			tdto.setTestName(testNameValueById.getTestName());
+			tdto.setTestValue(testNameValueById.getTestValue());
+			tdto.setTestValuesRange(testNameValueById.getTestRange());
+			tdto.setUnit(testNameValueById.getTestUnit());
+			userTestNameValueReportDAO.save(tdto);
+			
+			List<TestNameValueById> subTestNameValuesById = testNameValueById.getSubTestNameValueById();
+			for (TestNameValueById subTestNameValueById: subTestNameValuesById) {
+				SubTestNameValueDTO stdto = new SubTestNameValueDTO();
+				stdto.setTestName(subTestNameValueById.getTestName());
+				stdto.setTestValue(subTestNameValueById.getTestValue());
+				stdto.setTestValuesRange(subTestNameValueById.getTestRange());
+				stdto.setUnit(subTestNameValueById.getTestUnit());
+				stdto.setUsertestnamevaluereport(tdto);
+				subTestNameValueDAO.save(stdto);
+			}
+		}
+		
 		return ServiceUtils.setResponse(response, true, "Update test name value");
 	}
 

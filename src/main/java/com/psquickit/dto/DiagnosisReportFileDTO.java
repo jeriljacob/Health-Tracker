@@ -15,6 +15,8 @@ public class DiagnosisReportFileDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", unique = true, nullable = false)
 	private Long id;
 
 	//bi-directional many-to-one association to FileStoreDTO

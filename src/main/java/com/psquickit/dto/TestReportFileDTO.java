@@ -9,23 +9,23 @@ import javax.persistence.*;
  * 
  */
 @Entity
-@Table(name="Testreportfile")
-@NamedQuery(name="Testreportfile.findAll", query="SELECT t FROM TestReportFileDTO t")
+@Table(name="testreportfile")
+@NamedQuery(name="TestReportFileDTO.findAll", query="SELECT t FROM TestReportFileDTO t")
 public class TestReportFileDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	private Long id;
 
-	//bi-directional many-to-one association to Filestore
+	//bi-directional many-to-one association to FileStoreDTO
 	@ManyToOne
-	@JoinColumn(name="FileStoredId")
+	@JoinColumn(name="FileStoreId")
 	private FileStoreDTO filestore;
 
-	//bi-directional many-to-one association to Usertestreport
+	//bi-directional many-to-one association to UserTestNameValueReportDTO
 	@ManyToOne
-	@JoinColumn(name="UserTestReportId")
-	private UserTestReportDTO usertestreport;
+	@JoinColumn(name="UserTestNameValueReportId")
+	private UserTestNameValueReportDTO usertestnamevaluereport;
 
 	public TestReportFileDTO() {
 	}
@@ -46,12 +46,12 @@ public class TestReportFileDTO implements Serializable {
 		this.filestore = filestore;
 	}
 
-	public UserTestReportDTO getUsertestreport() {
-		return this.usertestreport;
+	public UserTestNameValueReportDTO getUsertestnamevaluereport() {
+		return this.usertestnamevaluereport;
 	}
 
-	public void setUsertestreport(UserTestReportDTO usertestreport) {
-		this.usertestreport = usertestreport;
+	public void setUsertestnamevaluereport(UserTestNameValueReportDTO usertestnamevaluereport) {
+		this.usertestnamevaluereport = usertestnamevaluereport;
 	}
 
 }

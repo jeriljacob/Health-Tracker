@@ -10,8 +10,8 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Mcimaster")
-@NamedQuery(name="Mcimaster.findAll", query="SELECT m FROM MciMasterDTO m")
+@Table(name="mcimaster")
+@NamedQuery(name="MciMasterDTO.findAll", query="SELECT m FROM MciMasterDTO m")
 public class MciMasterDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -24,7 +24,7 @@ public class MciMasterDTO implements Serializable {
 
 	private String mciName;
 
-	//bi-directional many-to-one association to Doctormci
+	//bi-directional many-to-one association to DoctorMciDTO
 	@OneToMany(mappedBy="mcimaster")
 	private List<DoctorMciDTO> doctormcis;
 
@@ -73,14 +73,14 @@ public class MciMasterDTO implements Serializable {
 
 	public DoctorMciDTO addDoctormci(DoctorMciDTO doctormci) {
 		getDoctormcis().add(doctormci);
-		doctormci.setMciMaster(this);
+		doctormci.setMcimaster(this);
 
 		return doctormci;
 	}
 
 	public DoctorMciDTO removeDoctormci(DoctorMciDTO doctormci) {
 		getDoctormcis().remove(doctormci);
-		doctormci.setMciMaster(null);
+		doctormci.setMcimaster(null);
 
 		return doctormci;
 	}

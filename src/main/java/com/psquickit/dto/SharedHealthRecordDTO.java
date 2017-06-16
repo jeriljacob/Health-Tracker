@@ -1,8 +1,16 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -10,8 +18,8 @@ import java.sql.Timestamp;
  * 
  */
 @Entity
-@Table(name="Sharedhealthrecord")
-@NamedQuery(name="Sharedhealthrecord.findAll", query="SELECT s FROM SharedHealthRecordDTO s")
+@Table(name="sharedhealthrecord")
+@NamedQuery(name="SharedHealthRecordDTO.findAll", query="SELECT s FROM SharedHealthRecordDTO s")
 public class SharedHealthRecordDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -20,18 +28,20 @@ public class SharedHealthRecordDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
-	//bi-directional many-to-one association to Healthrecord
+	//bi-directional many-to-one association to HealthRecordDTO
 	@ManyToOne
 	@JoinColumn(name="HealthRecordId")
 	private HealthRecordDTO healthrecord;
 
-	//bi-directional many-to-one association to Shareduserrecord
+	//bi-directional many-to-one association to SharedUserRecordDTO
 	@ManyToOne
 	@JoinColumn(name="SharedUserRecordId")
 	private SharedUserRecordDTO shareduserrecord;
@@ -55,11 +65,11 @@ public class SharedHealthRecordDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -71,11 +81,11 @@ public class SharedHealthRecordDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 

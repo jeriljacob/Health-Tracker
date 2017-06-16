@@ -8,7 +8,7 @@
 
 	<xs:complexType name="basicUserDetails">
 		<xs:sequence>
-			<xs:element name="uid" type="xs:string" />
+			<xs:element name="aadhaarNumber" type="xs:string" />
 			<xs:element name="firstName" type="xs:string"/>
 			<xs:element name="lastName" type="xs:string"/>
 			<xs:element name="contactNo" type="xs:string"/>
@@ -58,7 +58,7 @@
 	<xs:element name="userLoginRequest">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="uid" type="xs:string" />
+				<xs:element name="aadhaarNumber" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>

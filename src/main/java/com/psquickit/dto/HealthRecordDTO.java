@@ -1,10 +1,18 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
 import java.util.Date;
-import java.sql.Timestamp;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -12,8 +20,8 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Healthrecord")
-@NamedQuery(name="Healthrecord.findAll", query="SELECT h FROM HealthRecordDTO h")
+@Table(name="healthrecord")
+@NamedQuery(name="HealthRecordDTO.findAll", query="SELECT h FROM HealthRecordDTO h")
 public class HealthRecordDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -22,34 +30,37 @@ public class HealthRecordDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
+	@Temporal(TemporalType.DATE)
 	private Date recordDate;
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
-	//bi-directional many-to-one association to User
+	//bi-directional many-to-one association to UserDTO
 	@ManyToOne
 	@JoinColumn(name="UserId")
 	private UserDTO user;
 
-	//bi-directional many-to-one association to Sharedhealthrecord
+	//bi-directional many-to-one association to SharedHealthRecordDTO
 	@OneToMany(mappedBy="healthrecord")
 	private List<SharedHealthRecordDTO> sharedhealthrecords;
 
-	//bi-directional many-to-one association to Userdiagnosisreport
+	//bi-directional many-to-one association to UserDiagnosisReportDTO
 	@OneToMany(mappedBy="healthrecord")
 	private List<UserDiagnosisReportDTO> userdiagnosisreports;
 
-	//bi-directional many-to-one association to Userprescription
+	//bi-directional many-to-one association to UserPrescriptionDTO
 	@OneToMany(mappedBy="healthrecord")
 	private List<UserPrescriptionDTO> userprescriptions;
 
-	//bi-directional many-to-one association to Usertestreport
+	//bi-directional many-to-one association to UserTestNameValueReportDTO
 	@OneToMany(mappedBy="healthrecord")
-	private List<UserTestReportDTO> usertestreports;
+	private List<UserTestNameValueReportDTO> usertestnamevaluereports;
 
 	public HealthRecordDTO() {
 	}
@@ -70,11 +81,11 @@ public class HealthRecordDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -94,11 +105,11 @@ public class HealthRecordDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 
@@ -176,26 +187,26 @@ public class HealthRecordDTO implements Serializable {
 		return userprescription;
 	}
 
-	public List<UserTestReportDTO> getUsertestreports() {
-		return this.usertestreports;
+	public List<UserTestNameValueReportDTO> getUsertestnamevaluereports() {
+		return this.usertestnamevaluereports;
 	}
 
-	public void setUsertestreports(List<UserTestReportDTO> usertestreports) {
-		this.usertestreports = usertestreports;
+	public void setUsertestnamevaluereports(List<UserTestNameValueReportDTO> usertestnamevaluereports) {
+		this.usertestnamevaluereports = usertestnamevaluereports;
 	}
 
-	public UserTestReportDTO addUsertestreport(UserTestReportDTO usertestreport) {
-		getUsertestreports().add(usertestreport);
-		usertestreport.setHealthrecord(this);
+	public UserTestNameValueReportDTO addUsertestnamevaluereport(UserTestNameValueReportDTO usertestnamevaluereport) {
+		getUsertestnamevaluereports().add(usertestnamevaluereport);
+		usertestnamevaluereport.setHealthrecord(this);
 
-		return usertestreport;
+		return usertestnamevaluereport;
 	}
 
-	public UserTestReportDTO removeUsertestreport(UserTestReportDTO usertestreport) {
-		getUsertestreports().remove(usertestreport);
-		usertestreport.setHealthrecord(null);
+	public UserTestNameValueReportDTO removeUsertestnamevaluereport(UserTestNameValueReportDTO usertestnamevaluereport) {
+		getUsertestnamevaluereports().remove(usertestnamevaluereport);
+		usertestnamevaluereport.setHealthrecord(null);
 
-		return usertestreport;
+		return usertestnamevaluereport;
 	}
 
 }

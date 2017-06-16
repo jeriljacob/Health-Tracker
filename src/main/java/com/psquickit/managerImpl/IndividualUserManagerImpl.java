@@ -60,10 +60,10 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 
 	private void registerUserValidation(String secretToken, IndividualUserRegisterRequest request) throws Exception {
 		authManager.validateSecretToken(secretToken);
-		UserDTO userDTO = userDAO.checkUIDExist(request.getUid());
+		UserDTO userDTO = userDAO.checkAadhaarNumberExist(request.getAadhaarNumber());
 		if (userDTO != null) {
 			throw new HandledException("USER_ALREADY_REGISTERED",
-					"User already exist. Please try again with different UID");
+					"User already exist. Please try again with different AadhaarNumber");
 		}
 	}
 
@@ -84,7 +84,7 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 		FileStoreDTO profilePicFileStoreDTO = null;
 		if (request.getProfileImg() != null) {
 			InputStream is = new ByteArrayInputStream(request.getProfileImg().getBytes());
-			profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getUid());
+			profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getAadhaarNumber());
 		}
 		
 		return registerUser(request, profilePicFileStoreDTO);
@@ -126,8 +126,8 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 		if (userDTO == null) {
 			throw new HandledException("USER_DOES_NOT_EXIST", "User does not exist.");
 		}
-		if (!request.getUid().equalsIgnoreCase(userDTO.getAadhaarNumber())) {
-			throw new HandledException("CANNOT_UPDATE_UID", "Aadhaar number cannot be updated");
+		if (!request.getAadhaarNumber().equalsIgnoreCase(userDTO.getAadhaarNumber())) {
+			throw new HandledException("CANNOT_UPDATE_AadhaarNumber", "Aadhaar number cannot be updated");
 		}
 		return userDTO;
 	}
@@ -140,9 +140,9 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 		FileStoreDTO profilePicFileStoreDTO = userDTO.getProfileImageFileStore();
 		InputStream is = new ByteArrayInputStream(request.getProfileImg().getBytes());
 		if (profilePicFileStoreDTO != null) {
-			fileStoreManager.updateFile(profilePicFileStoreDTO, is, "application/image", request.getUid());
+			fileStoreManager.updateFile(profilePicFileStoreDTO, is, "application/image", request.getAadhaarNumber());
 		} else {
-			profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getUid());
+			profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getAadhaarNumber());
 		}
 		
 		return updateUser(request, userDTO, profilePicFileStoreDTO);

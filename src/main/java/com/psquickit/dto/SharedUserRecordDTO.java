@@ -10,24 +10,24 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Shareduserrecord")
-@NamedQuery(name="Shareduserrecord.findAll", query="SELECT s FROM SharedUserRecordDTO s")
+@Table(name="shareduserrecord")
+@NamedQuery(name="SharedUserRecordDTO.findAll", query="SELECT s FROM SharedUserRecordDTO s")
 public class SharedUserRecordDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	private Long id;
 
-	//bi-directional many-to-one association to Sharedhealthrecord
+	//bi-directional many-to-one association to SharedHealthRecordDTO
 	@OneToMany(mappedBy="shareduserrecord")
 	private List<SharedHealthRecordDTO> sharedhealthrecords;
 
-	//bi-directional many-to-one association to User
+	//bi-directional many-to-one association to UserDTO
 	@ManyToOne
 	@JoinColumn(name="SharedById")
 	private UserDTO user1;
 
-	//bi-directional many-to-one association to User
+	//bi-directional many-to-one association to UserDTO
 	@ManyToOne
 	@JoinColumn(name="SharedToId")
 	private UserDTO user2;

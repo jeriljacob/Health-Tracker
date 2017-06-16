@@ -9,20 +9,20 @@ import javax.persistence.*;
  * 
  */
 @Entity
-@Table(name="Prescriptionfile")
-@NamedQuery(name="Prescriptionfile.findAll", query="SELECT p FROM PrescriptionFileDTO p")
+@Table(name="prescriptionfile")
+@NamedQuery(name="PrescriptionFileDTO.findAll", query="SELECT p FROM PrescriptionFileDTO p")
 public class PrescriptionFileDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	private Long id;
 
-	//bi-directional many-to-one association to Filestore
+	//bi-directional many-to-one association to FileStoreDTO
 	@ManyToOne
 	@JoinColumn(name="FileStoreId")
 	private FileStoreDTO filestore;
 
-	//bi-directional many-to-one association to Userprescription
+	//bi-directional many-to-one association to UserPrescriptionDTO
 	@ManyToOne
 	@JoinColumn(name="UserPrescriptionId")
 	private UserPrescriptionDTO userprescription;

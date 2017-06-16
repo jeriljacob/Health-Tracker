@@ -1,9 +1,18 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -11,8 +20,8 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Doctoruser")
-@NamedQuery(name="Doctoruser.findAll", query="SELECT d FROM DoctorUserDTO d")
+@Table(name="doctoruser")
+@NamedQuery(name="DoctorUserDTO.findAll", query="SELECT d FROM DoctorUserDTO d")
 public class DoctorUserDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -25,7 +34,8 @@ public class DoctorUserDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
 	private String EConsultant;
 
@@ -33,30 +43,31 @@ public class DoctorUserDTO implements Serializable {
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
-	//bi-directional many-to-one association to Doctorclinicaddress
+	//bi-directional many-to-one association to DoctorClinicAddressDTO
 	@OneToMany(mappedBy="doctoruser")
 	private List<DoctorClinicAddressDTO> doctorclinicaddresses;
 
-	//bi-directional many-to-one association to Doctordegree
+	//bi-directional many-to-one association to DoctorDegreeDTO
 	@OneToMany(mappedBy="doctoruser")
 	private List<DoctorDegreeDTO> doctordegrees;
 
-	//bi-directional many-to-one association to Doctormci
+	//bi-directional many-to-one association to DoctorMciDTO
 	@OneToMany(mappedBy="doctoruser")
 	private List<DoctorMciDTO> doctormcis;
 
-	//bi-directional many-to-one association to Doctorspecialization
+	//bi-directional many-to-one association to DoctorSpecializationDTO
 	@OneToMany(mappedBy="doctoruser")
 	private List<DoctorSpecializationDTO> doctorspecializations;
 
-	//bi-directional many-to-one association to Address
+	//bi-directional many-to-one association to AddressDTO
 	@ManyToOne
 	@JoinColumn(name="PracticeAreaId")
 	private AddressDTO address;
 
-	//bi-directional many-to-one association to User
+	//bi-directional many-to-one association to UserDTO
 	@ManyToOne
 	@JoinColumn(name="UserId")
 	private UserDTO user;
@@ -96,11 +107,11 @@ public class DoctorUserDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -128,11 +139,11 @@ public class DoctorUserDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 
@@ -168,14 +179,14 @@ public class DoctorUserDTO implements Serializable {
 
 	public DoctorDegreeDTO addDoctordegree(DoctorDegreeDTO doctordegree) {
 		getDoctordegrees().add(doctordegree);
-		doctordegree.setDoctorUser(this);
+		doctordegree.setDoctoruser(this);
 
 		return doctordegree;
 	}
 
 	public DoctorDegreeDTO removeDoctordegree(DoctorDegreeDTO doctordegree) {
 		getDoctordegrees().remove(doctordegree);
-		doctordegree.setDoctorUser(null);
+		doctordegree.setDoctoruser(null);
 
 		return doctordegree;
 	}
@@ -190,14 +201,14 @@ public class DoctorUserDTO implements Serializable {
 
 	public DoctorMciDTO addDoctormci(DoctorMciDTO doctormci) {
 		getDoctormcis().add(doctormci);
-		doctormci.setDoctorUser(this);
+		doctormci.setDoctoruser(this);
 
 		return doctormci;
 	}
 
 	public DoctorMciDTO removeDoctormci(DoctorMciDTO doctormci) {
 		getDoctormcis().remove(doctormci);
-		doctormci.setDoctorUser(null);
+		doctormci.setDoctoruser(null);
 
 		return doctormci;
 	}
@@ -212,14 +223,14 @@ public class DoctorUserDTO implements Serializable {
 
 	public DoctorSpecializationDTO addDoctorspecialization(DoctorSpecializationDTO doctorspecialization) {
 		getDoctorspecializations().add(doctorspecialization);
-		doctorspecialization.setDoctorUser(this);
+		doctorspecialization.setDoctoruser(this);
 
 		return doctorspecialization;
 	}
 
 	public DoctorSpecializationDTO removeDoctorspecialization(DoctorSpecializationDTO doctorspecialization) {
 		getDoctorspecializations().remove(doctorspecialization);
-		doctorspecialization.setDoctorUser(null);
+		doctorspecialization.setDoctoruser(null);
 
 		return doctorspecialization;
 	}

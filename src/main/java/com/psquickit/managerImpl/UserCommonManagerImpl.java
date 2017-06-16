@@ -8,7 +8,7 @@ import com.psquickit.pojo.user.BasicUserDetails;
 public class UserCommonManagerImpl {
 
 	public static <T extends BasicUserDetails> UserDTO updateUserDTO(T userDetails, UserDTO userDTO, FileStoreDTO profilePicFileStoreDTO) {
-		userDTO.setAadhaarNumber(userDetails.getUid());
+		userDTO.setAadhaarNumber(userDetails.getAadhaarNumber());
 		userDTO.setFirstName(userDetails.getFirstName());
 		userDTO.setLastName(userDetails.getLastName());
 		userDTO.setContactNumber(userDetails.getContactNo());
@@ -22,7 +22,7 @@ public class UserCommonManagerImpl {
 	}
 
 	public static <T extends BasicUserDetails> T toBasicUserDetails(T details, UserDTO userDTO, String profileImage) {
-		details.setUid(userDTO.getAadhaarNumber());
+		details.setAadhaarNumber(userDTO.getAadhaarNumber());
 		details.setFirstName(userDTO.getFirstName());
 		details.setLastName(userDTO.getLastName());
 		details.setContactNo(userDTO.getContactNumber());

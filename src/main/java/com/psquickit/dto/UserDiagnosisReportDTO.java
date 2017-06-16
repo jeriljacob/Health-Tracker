@@ -10,19 +10,21 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Userdiagnosisreport")
-@NamedQuery(name="Userdiagnosisreport.findAll", query="SELECT u FROM UserDiagnosisReportDTO u")
+@Table(name="userdiagnosisreport")
+@NamedQuery(name="UserDiagnosisReportDTO.findAll", query="SELECT u FROM UserDiagnosisReportDTO u")
 public class UserDiagnosisReportDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	private Long id;
 
-	//bi-directional many-to-one association to Diagnosisreportfile
+	private String diagnosisName;
+
+	//bi-directional many-to-one association to DiagnosisReportFileDTO
 	@OneToMany(mappedBy="userdiagnosisreport")
 	private List<DiagnosisReportFileDTO> diagnosisreportfiles;
 
-	//bi-directional many-to-one association to Healthrecord
+	//bi-directional many-to-one association to HealthRecordDTO
 	@ManyToOne
 	@JoinColumn(name="HealthRecordId")
 	private HealthRecordDTO healthrecord;
@@ -36,6 +38,14 @@ public class UserDiagnosisReportDTO implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getDiagnosisName() {
+		return this.diagnosisName;
+	}
+
+	public void setDiagnosisName(String diagnosisName) {
+		this.diagnosisName = diagnosisName;
 	}
 
 	public List<DiagnosisReportFileDTO> getDiagnosisreportfiles() {

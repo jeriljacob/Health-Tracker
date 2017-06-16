@@ -1,7 +1,7 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -16,8 +18,8 @@ import javax.persistence.Table;
  * 
  */
 @Entity
-@Table(name="Address")
-@NamedQuery(name="Address.findAll", query="SELECT a FROM AddressDTO a")
+@Table(name="address")
+@NamedQuery(name="AddressDTO.findAll", query="SELECT a FROM AddressDTO a")
 public class AddressDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -28,7 +30,8 @@ public class AddressDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
 	private String district;
 
@@ -40,21 +43,22 @@ public class AddressDTO implements Serializable {
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
-	//bi-directional many-to-one association to Doctorclinicaddress
+	//bi-directional many-to-one association to DoctorClinicAddressDTO
 	@OneToMany(mappedBy="address")
 	private List<DoctorClinicAddressDTO> doctorclinicaddresses;
 
-	//bi-directional many-to-one association to Doctoruser
+	//bi-directional many-to-one association to DoctorUserDTO
 	@OneToMany(mappedBy="address")
 	private List<DoctorUserDTO> doctorusers;
 
-	//bi-directional many-to-one association to User
+	//bi-directional many-to-one association to UserDTO
 	@OneToMany(mappedBy="address1")
 	private List<UserDTO> users1;
 
-	//bi-directional many-to-one association to User
+	//bi-directional many-to-one association to UserDTO
 	@OneToMany(mappedBy="address2")
 	private List<UserDTO> users2;
 
@@ -85,11 +89,11 @@ public class AddressDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -133,11 +137,11 @@ public class AddressDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 
@@ -195,14 +199,14 @@ public class AddressDTO implements Serializable {
 
 	public UserDTO addUsers1(UserDTO users1) {
 		getUsers1().add(users1);
-		users1.setAlternateAddress(this);
+		users1.setAddress1(this);
 
 		return users1;
 	}
 
 	public UserDTO removeUsers1(UserDTO users1) {
 		getUsers1().remove(users1);
-		users1.setAlternateAddress(null);
+		users1.setAddress1(null);
 
 		return users1;
 	}
@@ -217,14 +221,14 @@ public class AddressDTO implements Serializable {
 
 	public UserDTO addUsers2(UserDTO users2) {
 		getUsers2().add(users2);
-		users2.setPermanentAddress(this);
+		users2.setAddress2(this);
 
 		return users2;
 	}
 
 	public UserDTO removeUsers2(UserDTO users2) {
 		getUsers2().remove(users2);
-		users2.setPermanentAddress(null);
+		users2.setAddress2(null);
 
 		return users2;
 	}

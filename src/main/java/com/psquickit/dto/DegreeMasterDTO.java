@@ -1,8 +1,13 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 
 /**
@@ -10,8 +15,8 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Degreemaster")
-@NamedQuery(name="Degreemaster.findAll", query="SELECT d FROM DegreeMasterDTO d")
+@Table(name="degreemaster")
+@NamedQuery(name="DegreeMasterDTO.findAll", query="SELECT d FROM DegreeMasterDTO d")
 public class DegreeMasterDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +27,7 @@ public class DegreeMasterDTO implements Serializable {
 
 	private byte isActive;
 
-	//bi-directional many-to-one association to Doctordegree
+	//bi-directional many-to-one association to DoctorDegreeDTO
 	@OneToMany(mappedBy="degreemaster")
 	private List<DoctorDegreeDTO> doctordegrees;
 
@@ -63,14 +68,14 @@ public class DegreeMasterDTO implements Serializable {
 
 	public DoctorDegreeDTO addDoctordegree(DoctorDegreeDTO doctordegree) {
 		getDoctordegrees().add(doctordegree);
-		doctordegree.setDegreeMaster(this);
+		doctordegree.setDegreemaster(this);
 
 		return doctordegree;
 	}
 
 	public DoctorDegreeDTO removeDoctordegree(DoctorDegreeDTO doctordegree) {
 		getDoctordegrees().remove(doctordegree);
-		doctordegree.setDegreeMaster(null);
+		doctordegree.setDegreemaster(null);
 
 		return doctordegree;
 	}

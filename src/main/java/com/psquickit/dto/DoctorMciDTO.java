@@ -1,8 +1,16 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -10,8 +18,8 @@ import java.sql.Timestamp;
  * 
  */
 @Entity
-@Table(name="Doctormci")
-@NamedQuery(name="Doctormci.findAll", query="SELECT d FROM DoctorMciDTO d")
+@Table(name="doctormci")
+@NamedQuery(name="DoctorMciDTO.findAll", query="SELECT d FROM DoctorMciDTO d")
 public class DoctorMciDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -20,23 +28,25 @@ public class DoctorMciDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
 	private String registrationNumber;
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
-	//bi-directional many-to-one association to Doctoruser
+	//bi-directional many-to-one association to DoctorUserDTO
 	@ManyToOne
 	@JoinColumn(name="DoctorUserId")
-	private DoctorUserDTO doctorUser;
+	private DoctorUserDTO doctoruser;
 
-	//bi-directional many-to-one association to Mcimaster
+	//bi-directional many-to-one association to MciMasterDTO
 	@ManyToOne
 	@JoinColumn(name="MciMasterId")
-	private MciMasterDTO mciMaster;
+	private MciMasterDTO mcimaster;
 
 	public DoctorMciDTO() {
 	}
@@ -57,11 +67,11 @@ public class DoctorMciDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -81,28 +91,28 @@ public class DoctorMciDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 
-	public DoctorUserDTO getDoctorUser() {
-		return this.doctorUser;
+	public DoctorUserDTO getDoctoruser() {
+		return this.doctoruser;
 	}
 
-	public void setDoctorUser(DoctorUserDTO doctorUser) {
-		this.doctorUser = doctorUser;
+	public void setDoctoruser(DoctorUserDTO doctoruser) {
+		this.doctoruser = doctoruser;
 	}
 
-	public MciMasterDTO getMciMaster() {
-		return this.mciMaster;
+	public MciMasterDTO getMcimaster() {
+		return this.mcimaster;
 	}
 
-	public void setMciMaster(MciMasterDTO mciMaster) {
-		this.mciMaster = mciMaster;
+	public void setMcimaster(MciMasterDTO mcimaster) {
+		this.mcimaster = mcimaster;
 	}
 
 }

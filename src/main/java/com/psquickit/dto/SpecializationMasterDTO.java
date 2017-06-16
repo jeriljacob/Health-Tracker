@@ -10,8 +10,8 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Specializationmaster")
-@NamedQuery(name="Specializationmaster.findAll", query="SELECT s FROM SpecializationMasterDTO s")
+@Table(name="specializationmaster")
+@NamedQuery(name="SpecializationMasterDTO.findAll", query="SELECT s FROM SpecializationMasterDTO s")
 public class SpecializationMasterDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,7 @@ public class SpecializationMasterDTO implements Serializable {
 
 	private String specializationName;
 
-	//bi-directional many-to-one association to Doctorspecialization
+	//bi-directional many-to-one association to DoctorSpecializationDTO
 	@OneToMany(mappedBy="specializationmaster")
 	private List<DoctorSpecializationDTO> doctorspecializations;
 
@@ -63,14 +63,14 @@ public class SpecializationMasterDTO implements Serializable {
 
 	public DoctorSpecializationDTO addDoctorspecialization(DoctorSpecializationDTO doctorspecialization) {
 		getDoctorspecializations().add(doctorspecialization);
-		doctorspecialization.setSpecializationMaster(this);
+		doctorspecialization.setSpecializationmaster(this);
 
 		return doctorspecialization;
 	}
 
 	public DoctorSpecializationDTO removeDoctorspecialization(DoctorSpecializationDTO doctorspecialization) {
 		getDoctorspecializations().remove(doctorspecialization);
-		doctorspecialization.setSpecializationMaster(null);
+		doctorspecialization.setSpecializationmaster(null);
 
 		return doctorspecialization;
 	}

@@ -1,9 +1,18 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -12,7 +21,7 @@ import java.util.List;
  */
 @Entity
 @Table(name="users")
-@NamedQuery(name="User.findAll", query="SELECT u FROM UserDTO u")
+@NamedQuery(name="UserDTO.findAll", query="SELECT u FROM UserDTO u")
 public class UserDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +36,8 @@ public class UserDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
 	private String email;
 
@@ -37,37 +47,38 @@ public class UserDTO implements Serializable {
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
 	private String userType;
 
-	//bi-directional many-to-one association to Doctoruser
+	//bi-directional many-to-one association to DoctorUserDTO
 	@OneToMany(mappedBy="user")
 	private List<DoctorUserDTO> doctorusers;
 
-	//bi-directional many-to-one association to Healthrecord
+	//bi-directional many-to-one association to HealthRecordDTO
 	@OneToMany(mappedBy="user")
 	private List<HealthRecordDTO> healthrecords;
 
-	//bi-directional many-to-one association to Shareduserrecord
+	//bi-directional many-to-one association to SharedUserRecordDTO
 	@OneToMany(mappedBy="user1")
 	private List<SharedUserRecordDTO> shareduserrecords1;
 
-	//bi-directional many-to-one association to Shareduserrecord
+	//bi-directional many-to-one association to SharedUserRecordDTO
 	@OneToMany(mappedBy="user2")
 	private List<SharedUserRecordDTO> shareduserrecords2;
 
-	//bi-directional many-to-one association to Address
+	//bi-directional many-to-one association to AddressDTO
 	@ManyToOne
 	@JoinColumn(name="AlternateAddressId")
-	private AddressDTO alternateAddress;
+	private AddressDTO address1;
 
-	//bi-directional many-to-one association to Address
+	//bi-directional many-to-one association to AddressDTO
 	@ManyToOne
 	@JoinColumn(name="PermanentAddressId")
-	private AddressDTO permanentAddress;
+	private AddressDTO address2;
 
-	//bi-directional many-to-one association to Filestore
+	//bi-directional many-to-one association to FileStoreDTO
 	@ManyToOne
 	@JoinColumn(name="ProfileImageFileStoreId")
 	private FileStoreDTO profileImageFileStore;
@@ -115,11 +126,11 @@ public class UserDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -155,11 +166,11 @@ public class UserDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 
@@ -259,20 +270,20 @@ public class UserDTO implements Serializable {
 		return shareduserrecords2;
 	}
 
-	public AddressDTO getAlternateAddress() {
-		return this.alternateAddress;
+	public AddressDTO getAddress1() {
+		return this.address1;
 	}
 
-	public void setAlternateAddress(AddressDTO alternateAddress) {
-		this.alternateAddress = alternateAddress;
+	public void setAddress1(AddressDTO address1) {
+		this.address1 = address1;
 	}
 
-	public AddressDTO getPermanentAddress() {
-		return this.permanentAddress;
+	public AddressDTO getAddress2() {
+		return this.address2;
 	}
 
-	public void setPermanentAddress(AddressDTO permanentAddress) {
-		this.permanentAddress = permanentAddress;
+	public void setAddress2(AddressDTO address2) {
+		this.address2 = address2;
 	}
 
 	public FileStoreDTO getProfileImageFileStore() {

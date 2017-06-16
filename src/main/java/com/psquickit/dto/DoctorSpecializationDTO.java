@@ -1,8 +1,16 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -10,8 +18,8 @@ import java.sql.Timestamp;
  * 
  */
 @Entity
-@Table(name="Doctorspecialization")
-@NamedQuery(name="Doctorspecialization.findAll", query="SELECT d FROM DoctorSpecializationDTO d")
+@Table(name="doctorspecialization")
+@NamedQuery(name="DoctorSpecializationDTO.findAll", query="SELECT d FROM DoctorSpecializationDTO d")
 public class DoctorSpecializationDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -20,21 +28,23 @@ public class DoctorSpecializationDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
-	//bi-directional many-to-one association to Doctoruser
+	//bi-directional many-to-one association to DoctorUserDTO
 	@ManyToOne
 	@JoinColumn(name="DoctorUserId")
-	private DoctorUserDTO doctorUser;
+	private DoctorUserDTO doctoruser;
 
-	//bi-directional many-to-one association to Specializationmaster
+	//bi-directional many-to-one association to SpecializationMasterDTO
 	@ManyToOne
 	@JoinColumn(name="SpecializationMasterId")
-	private SpecializationMasterDTO specializationMaster;
+	private SpecializationMasterDTO specializationmaster;
 
 	public DoctorSpecializationDTO() {
 	}
@@ -55,11 +65,11 @@ public class DoctorSpecializationDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -71,28 +81,28 @@ public class DoctorSpecializationDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 
-	public DoctorUserDTO getDoctorUser() {
-		return this.doctorUser;
+	public DoctorUserDTO getDoctoruser() {
+		return this.doctoruser;
 	}
 
-	public void setDoctorUser(DoctorUserDTO doctorUser) {
-		this.doctorUser = doctorUser;
+	public void setDoctoruser(DoctorUserDTO doctoruser) {
+		this.doctoruser = doctoruser;
 	}
 
-	public SpecializationMasterDTO getSpecializationMaster() {
-		return this.specializationMaster;
+	public SpecializationMasterDTO getSpecializationmaster() {
+		return this.specializationmaster;
 	}
 
-	public void setSpecializationMaster(SpecializationMasterDTO specializationMaster) {
-		this.specializationMaster = specializationMaster;
+	public void setSpecializationmaster(SpecializationMasterDTO specializationmaster) {
+		this.specializationmaster = specializationmaster;
 	}
 
 }

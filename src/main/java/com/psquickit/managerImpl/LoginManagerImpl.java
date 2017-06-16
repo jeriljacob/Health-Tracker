@@ -54,7 +54,7 @@ public class LoginManagerImpl implements LoginManager {
 	@Override
 	@Transactional
 	public UserLoginResponse login(String secretToken, UserLoginRequest request) throws Exception {
-		UserDTO userDTO = userDAO.checkUIDExist(request.getUid());
+		UserDTO userDTO = userDAO.checkAadhaarNumberExist(request.getAadhaarNumber());
 		if (userDTO == null) {
 			throw new HandledException("USER_DOES_NOT_EXIST", "User does not exist");
 		}

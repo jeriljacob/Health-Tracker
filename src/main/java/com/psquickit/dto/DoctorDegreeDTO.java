@@ -1,8 +1,16 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -10,8 +18,8 @@ import java.sql.Timestamp;
  * 
  */
 @Entity
-@Table(name="Doctordegree")
-@NamedQuery(name="Doctordegree.findAll", query="SELECT d FROM DoctorDegreeDTO d")
+@Table(name="doctordegree")
+@NamedQuery(name="DoctorDegreeDTO.findAll", query="SELECT d FROM DoctorDegreeDTO d")
 public class DoctorDegreeDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -20,21 +28,23 @@ public class DoctorDegreeDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
-	//bi-directional many-to-one association to Degreemaster
+	//bi-directional many-to-one association to DegreeMasterDTO
 	@ManyToOne
 	@JoinColumn(name="DegreeMasterId")
-	private DegreeMasterDTO degreeMaster;
+	private DegreeMasterDTO degreemaster;
 
-	//bi-directional many-to-one association to Doctoruser
+	//bi-directional many-to-one association to DoctorUserDTO
 	@ManyToOne
 	@JoinColumn(name="DoctorUserId")
-	private DoctorUserDTO doctorUser;
+	private DoctorUserDTO doctoruser;
 
 	public DoctorDegreeDTO() {
 	}
@@ -55,11 +65,11 @@ public class DoctorDegreeDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -71,28 +81,28 @@ public class DoctorDegreeDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 
-	public DegreeMasterDTO getDegreeMaster() {
-		return this.degreeMaster;
+	public DegreeMasterDTO getDegreemaster() {
+		return this.degreemaster;
 	}
 
-	public void setDegreeMaster(DegreeMasterDTO degreeMaster) {
-		this.degreeMaster = degreeMaster;
+	public void setDegreemaster(DegreeMasterDTO degreemaster) {
+		this.degreemaster = degreemaster;
 	}
 
-	public DoctorUserDTO getDoctorUser() {
-		return this.doctorUser;
+	public DoctorUserDTO getDoctoruser() {
+		return this.doctoruser;
 	}
 
-	public void setDoctorUser(DoctorUserDTO doctorUser) {
-		this.doctorUser = doctorUser;
+	public void setDoctoruser(DoctorUserDTO doctoruser) {
+		this.doctoruser = doctoruser;
 	}
 
 }

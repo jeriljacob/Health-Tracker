@@ -1,9 +1,16 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /**
@@ -11,8 +18,8 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Filestore")
-@NamedQuery(name="Filestore.findAll", query="SELECT f FROM FileStoreDTO f")
+@Table(name="filestore")
+@NamedQuery(name="FileStoreDTO.findAll", query="SELECT f FROM FileStoreDTO f")
 public class FileStoreDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -21,7 +28,8 @@ public class FileStoreDTO implements Serializable {
 
 	private Long createdBy;
 
-	private Timestamp createdOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
 
 	private String documentType;
 
@@ -31,23 +39,24 @@ public class FileStoreDTO implements Serializable {
 
 	private Long updatedBy;
 
-	private Timestamp updatedOn;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updatedOn;
 
 	private String version;
 
-	//bi-directional many-to-one association to Diagnosisreportfile
+	//bi-directional many-to-one association to DiagnosisReportFileDTO
 	@OneToMany(mappedBy="filestore")
 	private List<DiagnosisReportFileDTO> diagnosisreportfiles;
 
-	//bi-directional many-to-one association to Prescriptionfile
+	//bi-directional many-to-one association to PrescriptionFileDTO
 	@OneToMany(mappedBy="filestore")
 	private List<PrescriptionFileDTO> prescriptionfiles;
 
-	//bi-directional many-to-one association to Testreportfile
+	//bi-directional many-to-one association to TestReportFileDTO
 	@OneToMany(mappedBy="filestore")
 	private List<TestReportFileDTO> testreportfiles;
 
-	//bi-directional many-to-one association to User
+	//bi-directional many-to-one association to UserDTO
 	@OneToMany(mappedBy="filestore")
 	private List<UserDTO> users;
 
@@ -70,11 +79,11 @@ public class FileStoreDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Timestamp getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -110,11 +119,11 @@ public class FileStoreDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 

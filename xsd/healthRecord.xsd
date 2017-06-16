@@ -30,6 +30,78 @@
 		</xs:complexType>
 	</xs:element>
 	
+	<xs:element name="addTestNameValue">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="testNameValue" type="tns:testNameValue" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="testNameValue">
+		<xs:sequence>
+			<xs:element name="testName" type="xs:string" />
+			<xs:element name="testValue" type="xs:string"/>
+			<xs:element name="testRange" type="xs:string"/>
+			<xs:element name="testUnit" type="xs:string"/>
+			<xs:element name="subTestNameValue" type="tns:testNameValue" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+		
+	<xs:element name="updateTestNameValue">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="testNameValueById" type="tns:testNameValueById" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>	
+	<xs:complexType name="testNameValueById">
+		<xs:sequence>
+			<xs:element name="id" type="xs:string" />
+			<xs:element name="testName" type="xs:string" />
+			<xs:element name="testValue" type="xs:string"/>
+			<xs:element name="testRange" type="xs:string"/>
+			<xs:element name="testUnit" type="xs:string"/>
+			<xs:element name="subTestNameValueById" type="tns:testNameValueById" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="updateTestNameValueResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="deleteTestResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:complexType name="testNameReportById">
+		<xs:sequence>
+			<xs:element name="id" type="xs:string" />
+			<xs:element name="testName" type="xs:string" />
+			<xs:element name="testReportFileStoreId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:element name="getTestNameValueReportResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse">
+					<xs:sequence>
+						<xs:element name="testNameReportById" type="tns:testNameReportById" maxOccurs="unbounded"/>
+						<xs:element name="testNameValueById" type="tns:testNameValueById" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
 	<xs:element name="uploadBasicHealthParameterResponse">
 		<xs:complexType>
 			<xs:complexContent>
@@ -59,7 +131,7 @@
 			<xs:complexContent>
 				<xs:extension base="ns1:genericServiceResponse">
 					<xs:sequence>
-						<xs:element name="healthRecordId" type="xs:string" />
+						<xs:element name="prescriptionId" type="xs:string" />
 					</xs:sequence>
 				</xs:extension>
 			</xs:complexContent>
@@ -71,7 +143,7 @@
 			<xs:complexContent>
 				<xs:extension base="ns1:genericServiceResponse">
 					<xs:sequence>
-						<xs:element name="healthRecordId" type="xs:string" />
+						<xs:element name="diagnosisId" type="xs:string" />
 					</xs:sequence>
 				</xs:extension>
 			</xs:complexContent>

@@ -10,19 +10,19 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="Userprescription")
-@NamedQuery(name="Userprescription.findAll", query="SELECT u FROM UserPrescriptionDTO u")
+@Table(name="userprescription")
+@NamedQuery(name="UserPrescriptionDTO.findAll", query="SELECT u FROM UserPrescriptionDTO u")
 public class UserPrescriptionDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	private Long id;
 
-	//bi-directional many-to-one association to Prescriptionfile
+	//bi-directional many-to-one association to PrescriptionFileDTO
 	@OneToMany(mappedBy="userprescription")
 	private List<PrescriptionFileDTO> prescriptionfiles;
 
-	//bi-directional many-to-one association to Healthrecord
+	//bi-directional many-to-one association to HealthRecordDTO
 	@ManyToOne
 	@JoinColumn(name="HealthRecordId")
 	private HealthRecordDTO healthrecord;

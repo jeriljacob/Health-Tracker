@@ -103,7 +103,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 
 	private void registerDoctorValidation(String secretToken, DoctorUserRegisterRequest request) throws Exception {
 		authManager.validateSecretToken(secretToken);
-		UserDTO userDTO = userDAO.checkUIDExist(request.getUid());
+		UserDTO userDTO = userDAO.checkAadhaarNumberExist(request.getAadhaarNumber());
 		if (userDTO != null) {
 			throw new HandledException("DUPLICATE_USER_REGISTRATION", "Duplicate User Registration");
 		}
@@ -133,7 +133,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		FileStoreDTO profilePicFileStoreDTO = null;
 		if (request.getProfileImg() != null) {
 			InputStream is = new ByteArrayInputStream(request.getProfileImg().getBytes());
-			profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getUid());
+			profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getAadhaarNumber());
 		}
 		return registerDoctor(secretToken, request, profilePicFileStoreDTO);
 	}
@@ -142,8 +142,8 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		List<DoctorSpecializationDTO> listDoctorSpecializationDTO = Lists.newArrayList();
 		for (DoctorSpecialization speciliazation : listSpecialization) {
 			DoctorSpecializationDTO doctorSpecializationDTO = new DoctorSpecializationDTO();
-			doctorSpecializationDTO.setDoctorUser(doctorUserDTO);
-			doctorSpecializationDTO.setSpecializationMaster(specializationMasterDAO.findOne(Long.parseLong(speciliazation.getId())));
+			doctorSpecializationDTO.setDoctoruser(doctorUserDTO);
+			doctorSpecializationDTO.setSpecializationmaster(specializationMasterDAO.findOne(Long.parseLong(speciliazation.getId())));
 			listDoctorSpecializationDTO.add(doctorSpecializationDTO);
 		}
 		doctorSpecializationDAO.save(listDoctorSpecializationDTO);
@@ -153,8 +153,8 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		List<DoctorDegreeDTO> listDoctorDegreeDTO = Lists.newArrayList();
 		for (DoctorDegree degree : listDegree) {
 			DoctorDegreeDTO doctorDegreeDTO = new DoctorDegreeDTO();
-			doctorDegreeDTO.setDoctorUser(doctorUserDTO);
-			doctorDegreeDTO.setDegreeMaster(degreeMasterDAO.findOne(Long.parseLong(degree.getId())));
+			doctorDegreeDTO.setDoctoruser(doctorUserDTO);
+			doctorDegreeDTO.setDegreemaster(degreeMasterDAO.findOne(Long.parseLong(degree.getId())));
 			listDoctorDegreeDTO.add(doctorDegreeDTO);
 		}
 		doctorDegreeDAO.save(listDoctorDegreeDTO);
@@ -164,8 +164,8 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		List<DoctorMciDTO> listDoctorMciDTO = Lists.newArrayList();
 		for (DoctorMci mci : listMCI) {
 			DoctorMciDTO doctorMciDTO = new DoctorMciDTO();
-			doctorMciDTO.setDoctorUser(doctorUserDTO);
-			doctorMciDTO.setMciMaster(mciMasterDAO.findOne(Long.parseLong(mci.getId())));
+			doctorMciDTO.setDoctoruser(doctorUserDTO);
+			doctorMciDTO.setMcimaster(mciMasterDAO.findOne(Long.parseLong(mci.getId())));
 			doctorMciDTO.setRegistrationNumber(mci.getRegistrationNumber());
 			listDoctorMciDTO.add(doctorMciDTO);
 		}
@@ -254,8 +254,8 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		if (doctorUserDTO == null) {
 			throw new HandledException("USER_DOES_NOT_EXIST", "User does not exist");
 		}
-		if (!request.getUid().equalsIgnoreCase(doctorUserDTO.getUser().getAadhaarNumber())) {
-			throw new HandledException("CANNOT_UPDATE_UID", "Aadhaar number cannot be updated");
+		if (!request.getAadhaarNumber().equalsIgnoreCase(doctorUserDTO.getUser().getAadhaarNumber())) {
+			throw new HandledException("CANNOT_UPDATE_AadhaarNumber", "Aadhaar number cannot be updated");
 		}
 		return doctorUserDTO;
 	}
@@ -284,9 +284,9 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		if (request.getProfileImg() != null) {
 			InputStream is = new ByteArrayInputStream(request.getProfileImg().getBytes());
 			if (profilePicFileStoreDTO != null) {
-				fileStoreManager.updateFile(profilePicFileStoreDTO, is, "application/image", request.getUid());
+				fileStoreManager.updateFile(profilePicFileStoreDTO, is, "application/image", request.getAadhaarNumber());
 			} else {
-				profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getUid());
+				profilePicFileStoreDTO = fileStoreManager.uploadFile(is, "application/image", request.getAadhaarNumber());
 			}
 		}
 		
@@ -364,7 +364,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 			DoctorMci mci = new DoctorMci();
 			mci.setId(Long.toString(dto.getId()));
 			mci.setRegistrationNumber(dto.getRegistrationNumber());
-			mci.setTitle(dto.getMciMaster().getMciName());
+			mci.setTitle(dto.getMcimaster().getMciName());
 			list.add(mci);
 		}
 		return list;
@@ -376,7 +376,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		for (DoctorSpecializationDTO dto: doctorSpecializationDTOs) {
 			DoctorSpecialization s = new DoctorSpecialization();
 			s.setId(Long.toString(dto.getId()));
-			s.setTitle(dto.getSpecializationMaster().getSpecializationName());
+			s.setTitle(dto.getSpecializationmaster().getSpecializationName());
 			list.add(s);
 		}
 		return list;
@@ -387,7 +387,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		for (DoctorDegreeDTO dto: doctorDegreeDTOs) {
 			DoctorDegree s = new DoctorDegree();
 			s.setId(Long.toString(dto.getId()));
-			s.setTitle(dto.getDegreeMaster().getDegreeName());
+			s.setTitle(dto.getDegreemaster().getDegreeName());
 			list.add(s);
 		}
 		return list;

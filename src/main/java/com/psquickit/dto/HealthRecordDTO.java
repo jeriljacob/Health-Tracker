@@ -30,7 +30,6 @@ public class HealthRecordDTO implements Serializable {
 
 	private Long createdBy;
 
-	
 	private Timestamp createdOn;
 
 	@Temporal(TemporalType.DATE)
@@ -38,7 +37,6 @@ public class HealthRecordDTO implements Serializable {
 
 	private Long updatedBy;
 
-	
 	private Timestamp updatedOn;
 
 	//bi-directional many-to-one association to UserDTO

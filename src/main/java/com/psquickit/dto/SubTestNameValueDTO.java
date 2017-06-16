@@ -26,7 +26,6 @@ public class SubTestNameValueDTO implements Serializable {
 
 	private Long createdBy;
 
-	
 	private Timestamp createdOn;
 
 	private String testName;

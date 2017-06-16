@@ -26,12 +26,10 @@ public class DoctorClinicAddressDTO implements Serializable {
 
 	private Long createdBy;
 
-	
 	private Timestamp createdOn;
 
 	private Long updatedBy;
 
-	
 	private Timestamp updatedOn;
 
 	//bi-directional many-to-one association to AddressDTO

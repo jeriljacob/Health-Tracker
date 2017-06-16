@@ -31,7 +31,6 @@ public class DoctorUserDTO implements Serializable {
 	private String clinicContactNumber;
 
 	private Long createdBy;
-
 	
 	private Timestamp createdOn;
 
@@ -40,7 +39,6 @@ public class DoctorUserDTO implements Serializable {
 	private String inPersonConsultant;
 
 	private Long updatedBy;
-
 	
 	private Timestamp updatedOn;
 

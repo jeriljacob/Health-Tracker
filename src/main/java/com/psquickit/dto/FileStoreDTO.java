@@ -26,7 +26,6 @@ public class FileStoreDTO implements Serializable {
 
 	private Long createdBy;
 
-	
 	private Timestamp createdOn;
 
 	private String documentType;
@@ -37,7 +36,6 @@ public class FileStoreDTO implements Serializable {
 
 	private Long updatedBy;
 
-	
 	private Timestamp updatedOn;
 
 	private String version;
@@ -55,7 +53,7 @@ public class FileStoreDTO implements Serializable {
 	private List<TestReportFileDTO> testreportfiles;
 
 	//bi-directional many-to-one association to UserDTO
-	@OneToMany(mappedBy="filestore")
+	@OneToMany(mappedBy="profileImageFileStore")
 	private List<UserDTO> users;
 
 	public FileStoreDTO() {

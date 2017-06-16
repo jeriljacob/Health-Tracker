@@ -26,14 +26,12 @@ public class DoctorMciDTO implements Serializable {
 
 	private Long createdBy;
 
-	
 	private Timestamp createdOn;
 
 	private String registrationNumber;
 
 	private Long updatedBy;
 
-	
 	private Timestamp updatedOn;
 
 	//bi-directional many-to-one association to DoctorUserDTO

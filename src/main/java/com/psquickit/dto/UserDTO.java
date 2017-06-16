@@ -34,7 +34,6 @@ public class UserDTO implements Serializable {
 
 	private Long createdBy;
 
-	
 	private Timestamp createdOn;
 
 	private String email;
@@ -45,7 +44,6 @@ public class UserDTO implements Serializable {
 
 	private Long updatedBy;
 
-	
 	private Timestamp updatedOn;
 
 	private String userType;
@@ -69,12 +67,12 @@ public class UserDTO implements Serializable {
 	//bi-directional many-to-one association to AddressDTO
 	@ManyToOne
 	@JoinColumn(name="AlternateAddressId")
-	private AddressDTO address1;
+	private AddressDTO alternateAddress;
 
 	//bi-directional many-to-one association to AddressDTO
 	@ManyToOne
 	@JoinColumn(name="PermanentAddressId")
-	private AddressDTO address2;
+	private AddressDTO permanentAddress;
 
 	//bi-directional many-to-one association to FileStoreDTO
 	@ManyToOne
@@ -269,19 +267,19 @@ public class UserDTO implements Serializable {
 	}
 
 	public AddressDTO getAddress1() {
-		return this.address1;
+		return this.alternateAddress;
 	}
 
-	public void setAddress1(AddressDTO address1) {
-		this.address1 = address1;
+	public void setAddress1(AddressDTO alternateAddress) {
+		this.alternateAddress = alternateAddress;
 	}
 
 	public AddressDTO getAddress2() {
-		return this.address2;
+		return this.permanentAddress;
 	}
 
-	public void setAddress2(AddressDTO address2) {
-		this.address2 = address2;
+	public void setAddress2(AddressDTO permanentAddress) {
+		this.permanentAddress = permanentAddress;
 	}
 
 	public FileStoreDTO getProfileImageFileStore() {

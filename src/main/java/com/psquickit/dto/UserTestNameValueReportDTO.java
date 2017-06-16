@@ -28,7 +28,6 @@ public class UserTestNameValueReportDTO implements Serializable {
 
 	private Long createdBy;
 
-	
 	private Timestamp createdOn;
 
 	private String testName;
@@ -41,7 +40,6 @@ public class UserTestNameValueReportDTO implements Serializable {
 
 	private Long updatedBy;
 
-	
 	private Timestamp updatedOn;
 
 	//bi-directional many-to-one association to SubTestNameValueDTO

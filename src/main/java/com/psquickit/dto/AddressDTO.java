@@ -28,7 +28,6 @@ public class AddressDTO implements Serializable {
 
 	private Long createdBy;
 
-	
 	private Timestamp createdOn;
 
 	private String district;
@@ -41,7 +40,6 @@ public class AddressDTO implements Serializable {
 
 	private Long updatedBy;
 
-	
 	private Timestamp updatedOn;
 
 	//bi-directional many-to-one association to DoctorClinicAddressDTO
@@ -53,11 +51,11 @@ public class AddressDTO implements Serializable {
 	private List<DoctorUserDTO> doctorusers;
 
 	//bi-directional many-to-one association to UserDTO
-	@OneToMany(mappedBy="address1")
+	@OneToMany(mappedBy="alternateAddress")
 	private List<UserDTO> users1;
 
 	//bi-directional many-to-one association to UserDTO
-	@OneToMany(mappedBy="address2")
+	@OneToMany(mappedBy="permanentAddress")
 	private List<UserDTO> users2;
 
 	public AddressDTO() {

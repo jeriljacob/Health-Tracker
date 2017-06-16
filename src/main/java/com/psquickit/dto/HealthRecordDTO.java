@@ -1,7 +1,7 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -30,16 +30,16 @@ public class HealthRecordDTO implements Serializable {
 
 	private Long createdBy;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdOn;
+	
+	private Timestamp createdOn;
 
 	@Temporal(TemporalType.DATE)
-	private Date recordDate;
+	private Timestamp recordDate;
 
 	private Long updatedBy;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updatedOn;
+	
+	private Timestamp updatedOn;
 
 	//bi-directional many-to-one association to UserDTO
 	@ManyToOne
@@ -81,19 +81,19 @@ public class HealthRecordDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Date getCreatedOn() {
+	public Timestamp getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Date createdOn) {
+	public void setCreatedOn(Timestamp createdOn) {
 		this.createdOn = createdOn;
 	}
 
-	public Date getRecordDate() {
+	public Timestamp getRecordDate() {
 		return this.recordDate;
 	}
 
-	public void setRecordDate(Date recordDate) {
+	public void setRecordDate(Timestamp recordDate) {
 		this.recordDate = recordDate;
 	}
 
@@ -105,11 +105,11 @@ public class HealthRecordDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Date getUpdatedOn() {
+	public Timestamp getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Date updatedOn) {
+	public void setUpdatedOn(Timestamp updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 

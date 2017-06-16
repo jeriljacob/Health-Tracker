@@ -1,7 +1,7 @@
 package com.psquickit.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -9,8 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 
 /**
@@ -30,8 +28,8 @@ public class AddressDTO implements Serializable {
 
 	private Long createdBy;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdOn;
+	
+	private Timestamp createdOn;
 
 	private String district;
 
@@ -43,8 +41,8 @@ public class AddressDTO implements Serializable {
 
 	private Long updatedBy;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updatedOn;
+	
+	private Timestamp updatedOn;
 
 	//bi-directional many-to-one association to DoctorClinicAddressDTO
 	@OneToMany(mappedBy="address")
@@ -89,11 +87,11 @@ public class AddressDTO implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public Date getCreatedOn() {
+	public Timestamp getCreatedOn() {
 		return this.createdOn;
 	}
 
-	public void setCreatedOn(Date createdOn) {
+	public void setCreatedOn(Timestamp createdOn) {
 		this.createdOn = createdOn;
 	}
 
@@ -137,11 +135,11 @@ public class AddressDTO implements Serializable {
 		this.updatedBy = updatedBy;
 	}
 
-	public Date getUpdatedOn() {
+	public Timestamp getUpdatedOn() {
 		return this.updatedOn;
 	}
 
-	public void setUpdatedOn(Date updatedOn) {
+	public void setUpdatedOn(Timestamp updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 

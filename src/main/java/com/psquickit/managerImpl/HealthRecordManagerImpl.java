@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,8 +38,14 @@ import com.psquickit.pojo.health.record.AddTestNameValue;
 import com.psquickit.pojo.health.record.DeleteDiagnosisResponse;
 import com.psquickit.pojo.health.record.DeletePrescriptionResponse;
 import com.psquickit.pojo.health.record.DeleteTestResponse;
+import com.psquickit.pojo.health.record.Diagnosis;
+import com.psquickit.pojo.health.record.DiagnosisFile;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
+import com.psquickit.pojo.health.record.HealthRecord;
+import com.psquickit.pojo.health.record.ListHealthRecordResponse;
+import com.psquickit.pojo.health.record.Prescription;
+import com.psquickit.pojo.health.record.PrescriptionFile;
 import com.psquickit.pojo.health.record.TestNameValue;
 import com.psquickit.pojo.health.record.TestNameValueById;
 import com.psquickit.pojo.health.record.TestNameValueReport;
@@ -84,18 +91,57 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Autowired
 	UserDiagnosisReportDAO userDiagnosisReportDAO;
 	
+	@Override
+	@Transactional
+	public ListHealthRecordResponse listHealthRecord(String authToken) throws Exception {
+		long userId = authManager.getUserId(authToken);
+		List<HealthRecordDTO> hrdtos = healthRecordDAO.listHealthRecordByUserId(userId);
+		List<HealthRecord> hrs = Lists.newArrayList();
+		for (HealthRecordDTO hrdto: hrdtos) {
+			HealthRecord hr = populateHealthRecord(hrdto.getId(), userId);
+			hrs.add(hr);
+		}
+		
+		ListHealthRecordResponse response = new ListHealthRecordResponse();
+		response.getHealthRecord().addAll(hrs);
+		return ServiceUtils.setResponse(response, true, "List health record");
+	}
 	
 	@Override
-	public GetHealthRecordResponse getHealthRecord(String authToken) {
-		// TODO Auto-generated method stub
-		return null;
+	@Transactional
+	public GetHealthRecordResponse getHealthRecord(String authToken, long healthRecordId) throws Exception {
+		long userId = authManager.getUserId(authToken);
+		GetHealthRecordResponse response = new GetHealthRecordResponse();
+		response.setHealthRecord(populateHealthRecord(healthRecordId, userId));
+		return ServiceUtils.setResponse(response, true, "Get health record");
+	}
+	
+	private HealthRecord populateHealthRecord(long healthRecordId, long userId) {
+		HealthRecordDTO hdto = healthRecordDAO.getByHealthRecordIdAndUserId(healthRecordId, userId);
+		
+		List<UserTestNameValueReportDTO> tdtos = userTestNameValueReportDAO.listUserTestNameValueReportByHealthRecordIdAndUserId(healthRecordId, userId);
+		List<TestNameValueReport> tnvrs = populateTestNameValueReport(tdtos);
+		
+		List<UserPrescriptionDTO> updtos = userPrescriptionDAO.listUserPrescriptionByHealthRecordIdAndUserId(healthRecordId, userId);
+		List<Prescription> ps = populatePrescription(updtos);
+		
+		List<UserDiagnosisReportDTO> udrdtos = userDiagnosisReportDAO.listUserDiagnosisReportByHealthRecordIdAndUserId(healthRecordId, userId);
+		List<Diagnosis> ds = populateDiagnosis(udrdtos);
+		
+		HealthRecord hr = new HealthRecord();
+		hr.getTestNameValueReport().addAll(tnvrs);
+		hr.getPrescription().addAll(ps);
+		hr.getDiagnosis().addAll(ds);
+		hr.setHealthRecordDate(hdto.getRecordDate());
+		
+		return hr;
 	}
 
 	@Override
+	@Transactional(rollbackOn=Exception.class)
 	public GetTestNameValueReportResponse addTestNameValue(String authToken, AddTestNameValue request) throws Exception {
 		
 		long userId = authManager.getUserId(authToken);
-		
 		
 		HealthRecordDTO hdto = null;
 		if (request.getHealthRecordId() == null) {
@@ -148,6 +194,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 	
 	@Override
+	@Transactional(rollbackOn=Exception.class)
 	public GetTestNameValueReportResponse updateTestNameValue(String authToken, UpdateTestNameValue request) throws Exception {
 		
 		long userId = authManager.getUserId(authToken);
@@ -187,14 +234,10 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
+	@Transactional
 	public GetTestNameValueReportResponse getTestNameValueReport(String authToken, long healthRecordId) throws Exception {
 		long userId = authManager.getUserId(authToken);
-		List<UserTestNameValueReportDTO> tdtos = userTestNameValueReportDAO.listUserTestNameValueReportByHealthRecordId(healthRecordId, userId);
-		if (!tdtos.isEmpty()) {
-			if (tdtos.get(0).getHealthrecord().getUser().getId() != userId) {
-				throw new HandledException("NOT_SAME_USER", "User does not have right to view this health record.");
-			}
-		}
+		List<UserTestNameValueReportDTO> tdtos = userTestNameValueReportDAO.listUserTestNameValueReportByHealthRecordIdAndUserId(healthRecordId, userId);
 		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
 		response.getTestNameValueReport().addAll(populateTestNameValueReport(tdtos));
 		return ServiceUtils.setResponse(response, true, "Get tests");
@@ -238,12 +281,14 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
+	@Transactional(rollbackOn=Exception.class)
 	public DeleteTestResponse deleteTest(String authToken, List<Long> ids) throws Exception {
 		DeleteTestResponse response = new DeleteTestResponse();
 		return ServiceUtils.setResponse(response, true, "Delete tests");
 	}
 
 	@Override
+	@Transactional(rollbackOn=Exception.class)
 	public GetTestNameValueReportResponse addTestNameReport(String authToken, String healthRecordId,
 			Date healthRecordDate, String testName, MultipartFile[] testReports) throws Exception {
 		
@@ -283,6 +328,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
+	@Transactional(rollbackOn=Exception.class)
 	public UploadPrescriptionResponse uploadPrescription(String authToken, String healthRecordId,
 			Date healthRecordDate, MultipartFile[] prescriptions) throws Exception {
 		long userId = authManager.getUserId(authToken);
@@ -314,6 +360,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
+	@Transactional(rollbackOn=Exception.class)
 	public UploadDiagnosisResponse uploadDiagnosis(String authToken, String healthRecordId,
 			Date healthRecordDate, String diagnosisName, MultipartFile[] diagnosises) throws Exception {
 		long userId = authManager.getUserId(authToken);
@@ -345,24 +392,68 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
+	@Transactional
 	public void getPrescription(String authToken, long prescriptionId, HttpServletResponse httpResponse) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	private List<Prescription> populatePrescription(List<UserPrescriptionDTO> updtos) {
+		List<Prescription> ps = Lists.newArrayList();
+		for (UserPrescriptionDTO updto: updtos) {
+			Prescription p = new Prescription();
+			p.setId(Long.toString(updto.getId()));
+			
+			List<PrescriptionFile> pfs = Lists.newArrayList();
+			List<PrescriptionFileDTO> pfdtos = prescriptionFileDAO.listPrescriptionFileByPrescriptionId(updto.getId());
+			for (PrescriptionFileDTO pfdto: pfdtos) {
+				PrescriptionFile pf = new PrescriptionFile();
+				pf.setId(Long.toString(pfdto.getId()));
+				pf.setFileStoreId(Long.toString(pfdto.getFilestore().getId()));
+				pfs.add(pf);
+			}
+			p.getPrescriptionFile().addAll(pfs);
+			ps.add(p);
+		}
+		return ps;
+	}
 
 	@Override
+	@Transactional
 	public void getDiagnosis(String authToken, long diagnosisId, HttpServletResponse httpResponse) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}
 
+	private List<Diagnosis> populateDiagnosis(List<UserDiagnosisReportDTO> udrdtos) {
+		List<Diagnosis> ds = Lists.newArrayList();
+		for (UserDiagnosisReportDTO udrdto: udrdtos) {
+			Diagnosis d = new Diagnosis();
+			d.setId(Long.toString(udrdto.getId()));
+			
+			List<DiagnosisFile> dfs = Lists.newArrayList();
+			List<DiagnosisReportFileDTO> pfdtos = diagnosisReportFileDAO.listDiagnosisReportFileByDiagnosisId(udrdto.getId());
+			for (DiagnosisReportFileDTO pfdto: pfdtos) {
+				DiagnosisFile df = new DiagnosisFile();
+				df.setId(Long.toString(pfdto.getId()));
+				df.setFileStoreId(Long.toString(pfdto.getFilestore().getId()));
+				dfs.add(df);
+			}
+			d.getDiagnosisFile().addAll(dfs);
+			ds.add(d);
+		}
+		return ds;
+	}
+	
 	@Override
+	@Transactional(rollbackOn=Exception.class)
 	public DeletePrescriptionResponse deletePrescription(String authToken, List<Long> prescriptionIds) throws Exception {
 		DeletePrescriptionResponse response = new DeletePrescriptionResponse();
 		return ServiceUtils.setResponse(response, true, "Delete prescription");
 	}
 
 	@Override
+	@Transactional(rollbackOn=Exception.class)
 	public DeleteDiagnosisResponse deleteDiagnosis(String authToken, List<Long> diagnosisIds) throws Exception {
 		DeleteDiagnosisResponse response = new DeleteDiagnosisResponse();
 		return ServiceUtils.setResponse(response, true, "Delete diagnosis");

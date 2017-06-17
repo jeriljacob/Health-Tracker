@@ -11,16 +11,34 @@
 			<xs:complexContent>
 				<xs:extension base="ns1:genericServiceResponse">
 					<xs:sequence>
-						<xs:element name="healthRecordId" type="xs:string" />
-						<xs:element name="healthRecordDate" type="xs:dateTime" />
-						<xs:element name="testNameValueReport" type="tns:testNameValueReport" maxOccurs="unbounded"/>
-						<xs:element name="prescription" type="tns:prescription" maxOccurs="unbounded"/>
-						<xs:element name="diagnosis" type="tns:diagnosis" maxOccurs="unbounded"/>
+						<xs:element name="healthRecord" type="tns:healthRecord" />
 					</xs:sequence>
 				</xs:extension>
 			</xs:complexContent>
 		</xs:complexType>
 	</xs:element>
+	
+	<xs:element name="listHealthRecordResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse">
+					<xs:sequence>
+						<xs:element name="healthRecord" type="tns:healthRecord" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:complexType name="healthRecord">
+		<xs:sequence>
+			<xs:element name="healthRecordId" type="xs:string" />
+			<xs:element name="healthRecordDate" type="xs:dateTime" />
+			<xs:element name="testNameValueReport" type="tns:testNameValueReport" maxOccurs="unbounded"/>
+			<xs:element name="prescription" type="tns:prescription" maxOccurs="unbounded"/>
+			<xs:element name="diagnosis" type="tns:diagnosis" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
 	
 	<xs:element name="addTestNameValue">
 		<xs:complexType>
@@ -170,14 +188,14 @@
 	<xs:complexType name="prescription">
 		<xs:sequence>
 			<xs:element name="id" type="xs:string" />
-			<xs:element name="prescriptionFile" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="prescriptionFile" type="tns:prescriptionFile" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="diagnosis">
 		<xs:sequence>
 			<xs:element name="id" type="xs:string" />
 			<xs:element name="name" type="xs:string" />
-			<xs:element name="diagnosisFile" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="diagnosisFile" type="tns:diagnosisFile" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 

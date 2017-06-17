@@ -26,6 +26,7 @@ import com.psquickit.pojo.health.record.DeletePrescriptionResponse;
 import com.psquickit.pojo.health.record.DeleteTestResponse;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
+import com.psquickit.pojo.health.record.ListHealthRecordResponse;
 import com.psquickit.pojo.health.record.UpdateTestNameValue;
 import com.psquickit.pojo.health.record.UploadDiagnosisResponse;
 import com.psquickit.pojo.health.record.UploadPrescriptionResponse;
@@ -38,16 +39,29 @@ public class HealthRecordController {
 	@Autowired
 	HealthRecordManager manager;
 	
-	//in this request, we will only return the file
-	@RequestMapping(value = "/get/healthrecord", method = RequestMethod.GET)
-	public @ResponseBody GetHealthRecordResponse getHealthRecord(
+	@RequestMapping(value = "/list/healthrecord", method = RequestMethod.GET)
+	public @ResponseBody ListHealthRecordResponse listHealthRecord(
 			@RequestHeader(value="authToken", required=true) String authToken
+			) {
+		ListHealthRecordResponse response = new ListHealthRecordResponse();
+		try {
+			response = manager.listHealthRecord(authToken);
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "List health record", e);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/get/healthrecord/{healthrecordid}", method = RequestMethod.GET)
+	public @ResponseBody GetHealthRecordResponse getHealthRecord(
+			@RequestHeader(value="authToken", required=true) String authToken,
+			@PathVariable(value="healthrecordid") String healthRecordId
 			) {
 		GetHealthRecordResponse response = new GetHealthRecordResponse();
 		try {
-			response = manager.getHealthRecord(authToken);
+			response = manager.getHealthRecord(authToken, Long.parseLong(healthRecordId));
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Get health record", e);
 		}
 		return response;
 	}
@@ -61,7 +75,7 @@ public class HealthRecordController {
 		try {
 			response = manager.addTestNameValue(authToken, request);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Add test name values", e);
 		}
 		return response;
 	}
@@ -75,7 +89,7 @@ public class HealthRecordController {
 		try {
 			response = manager.updateTestNameValue(authToken, request);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Update test name values", e);
 		}
 		return response;
 	}
@@ -89,7 +103,7 @@ public class HealthRecordController {
 		try {
 			response = manager.getTestNameValueReport(authToken, Long.parseLong(healthRecordId));
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Get test name value report", e);
 		}
 		return response;
 	}
@@ -107,10 +121,12 @@ public class HealthRecordController {
 			}
 			response = manager.deleteTest(authToken, testIds);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Delete test", e);
 		}
 		return response;
 	}
+	
+	//TODO: add delete for subtest, and health records as well
 	
 	@RequestMapping(value = "/add/testnamereport", method = RequestMethod.POST)
 	public @ResponseBody GetTestNameValueReportResponse addTestNameValue(
@@ -124,7 +140,7 @@ public class HealthRecordController {
 		try {
 			response = manager.addTestNameReport(authToken, healthRecordId, healthRecordDate, testName, testReports);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Add test report", e);
 		}
 		return response;
 	}
@@ -153,7 +169,7 @@ public class HealthRecordController {
 		try {
 			response = manager.uploadPrescription(authToken, healthRecordId, healthRecordDate, prescriptions);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Upload prescription", e);
 		}
 		return response;
 	}
@@ -170,7 +186,7 @@ public class HealthRecordController {
 		try {
 			response = manager.uploadDiagnosis(authToken, healthRecordId, healthRecordDate, diagnosisName, diagnosises);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Upload diagnosis", e);
 		}
 		return response;
 	}
@@ -215,7 +231,7 @@ public class HealthRecordController {
 			}			
 			response = manager.deletePrescription(authToken, prescriptionIds);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Delete prescription", e);
 		}
 		return response;
 	}
@@ -233,7 +249,7 @@ public class HealthRecordController {
 			}
 			response = manager.deleteDiagnosis(authToken, diagnosisIds);
 		} catch (Exception e) {
-			return ServiceUtils.setResponse(response, false, "Upload health record", e);
+			return ServiceUtils.setResponse(response, false, "Delete diagnosis", e);
 		}
 		return response;
 	}

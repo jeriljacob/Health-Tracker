@@ -13,13 +13,14 @@ import com.psquickit.pojo.health.record.DeletePrescriptionResponse;
 import com.psquickit.pojo.health.record.DeleteTestResponse;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
+import com.psquickit.pojo.health.record.ListHealthRecordResponse;
 import com.psquickit.pojo.health.record.UpdateTestNameValue;
 import com.psquickit.pojo.health.record.UploadDiagnosisResponse;
 import com.psquickit.pojo.health.record.UploadPrescriptionResponse;
 
 public interface HealthRecordManager {
 
-	GetHealthRecordResponse getHealthRecord(String authToken) throws Exception;
+	GetHealthRecordResponse getHealthRecord(String authToken, long healthRecordId) throws Exception;
 
 	GetTestNameValueReportResponse addTestNameValue(String authToken, AddTestNameValue request) throws Exception;
 
@@ -47,4 +48,6 @@ public interface HealthRecordManager {
 	DeletePrescriptionResponse deletePrescription(String authToken, List<Long> prescriptionIds) throws Exception;
 
 	DeleteDiagnosisResponse deleteDiagnosis(String authToken, List<Long> diagnosisIds) throws Exception;
+
+	ListHealthRecordResponse listHealthRecord(String authToken) throws Exception;
 }

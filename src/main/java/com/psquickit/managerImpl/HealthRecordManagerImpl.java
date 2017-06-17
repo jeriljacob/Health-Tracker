@@ -284,6 +284,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Transactional(rollbackOn=Exception.class)
 	public DeleteTestResponse deleteTest(String authToken, List<Long> ids) throws Exception {
 		DeleteTestResponse response = new DeleteTestResponse();
+		//TODO: to implement
 		return ServiceUtils.setResponse(response, true, "Delete tests");
 	}
 
@@ -323,7 +324,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 
 	@Override
 	public void getTestNameReport(String authToken, long testReportId, HttpServletResponse httpResponse) throws Exception {
-		// TODO Auto-generated method stub
+		//TODO: to implement
 		
 	}
 
@@ -394,7 +395,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional
 	public void getPrescription(String authToken, long prescriptionId, HttpServletResponse httpResponse) throws Exception {
-		// TODO Auto-generated method stub
+		//TODO: to implement
 		
 	}
 	
@@ -421,7 +422,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional
 	public void getDiagnosis(String authToken, long diagnosisId, HttpServletResponse httpResponse) throws Exception {
-		// TODO Auto-generated method stub
+		//TODO: to implement
 		
 	}
 
@@ -449,6 +450,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Transactional(rollbackOn=Exception.class)
 	public DeletePrescriptionResponse deletePrescription(String authToken, List<Long> prescriptionIds) throws Exception {
 		DeletePrescriptionResponse response = new DeletePrescriptionResponse();
+		//TODO: to implement
 		return ServiceUtils.setResponse(response, true, "Delete prescription");
 	}
 
@@ -456,6 +458,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Transactional(rollbackOn=Exception.class)
 	public DeleteDiagnosisResponse deleteDiagnosis(String authToken, List<Long> diagnosisIds) throws Exception {
 		DeleteDiagnosisResponse response = new DeleteDiagnosisResponse();
+		//TODO: to implement
 		return ServiceUtils.setResponse(response, true, "Delete diagnosis");
 	}
 }

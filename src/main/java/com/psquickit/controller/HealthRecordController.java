@@ -148,7 +148,7 @@ public class HealthRecordController {
 	@RequestMapping(value = "/get/testnamereport/{id}", method = RequestMethod.GET)
 	public void getTestNameReport(
 			@RequestHeader(value="authToken", required=true) String authToken,
-			@RequestParam(value="id") String id,
+			@PathVariable(value="id") String id,
 			final HttpServletResponse httpResponse) {
 		try {
 			long testReportId = Long.parseLong(id);
@@ -162,7 +162,7 @@ public class HealthRecordController {
 	public @ResponseBody UploadPrescriptionResponse uploadPrescription(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
-			@RequestParam(value="healthRecordDate", required=false) Date healthRecordDate,
+			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(pattern="MMddyyyy") Date healthRecordDate,
 			@RequestPart(value = "prescription", required=true) MultipartFile[] prescriptions
 			) {
 		UploadPrescriptionResponse response = new UploadPrescriptionResponse();
@@ -178,7 +178,7 @@ public class HealthRecordController {
 	public @ResponseBody UploadDiagnosisResponse uploadDiagnosis(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
-			@RequestParam(value="healthRecordDate", required=false) Date healthRecordDate,
+			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(pattern="MMddyyyy") Date healthRecordDate,
 			@RequestParam(value="diagnosisName", required=true) String diagnosisName,
 			@RequestPart(value = "diagnosis", required=true) MultipartFile[] diagnosises
 			) {
@@ -194,7 +194,7 @@ public class HealthRecordController {
 	@RequestMapping(value = "/get/prescription/{id}", method = RequestMethod.GET)
 	public void getPrescription(
 			@RequestHeader(value="authToken", required=true) String authToken,
-			@RequestParam(value="id") String id,
+			@PathVariable(value="id") String id,
 			final HttpServletResponse httpResponse) {
 		try {
 			long prescriptionId = Long.parseLong(id);
@@ -207,7 +207,7 @@ public class HealthRecordController {
 	@RequestMapping(value = "/get/diagnosis/{id}", method = RequestMethod.GET)
 	public void getDiagnosis(
 			@RequestHeader(value="authToken", required=true) String authToken,
-			@RequestParam(value="id") String id,
+			@PathVariable(value="id") String id,
 			final HttpServletResponse httpResponse
 			) {
 		try {

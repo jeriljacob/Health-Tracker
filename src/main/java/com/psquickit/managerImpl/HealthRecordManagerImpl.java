@@ -159,6 +159,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			tdto.setTestValue(testNameValue.getTestValue());
 			tdto.setTestValuesRange(testNameValue.getTestRange());
 			tdto.setUnit(testNameValue.getTestUnit());
+			tdto.setHealthrecord(hdto);
 			userTestNameValueReportDAO.save(tdto);
 			
 			List<TestNameValue> subTestNameValues = testNameValue.getSubTestNameValue();
@@ -357,6 +358,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		prescriptionFileDAO.save(pdtos);
 		
 		UploadPrescriptionResponse response = new UploadPrescriptionResponse();
+		response.setPrescriptionId(updto.getId().toString());
 		return ServiceUtils.setResponse(response, true, "Upload prescription");
 	}
 
@@ -376,6 +378,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		
 		UserDiagnosisReportDTO udrdto = new UserDiagnosisReportDTO();
 		udrdto.setHealthrecord(hdto);
+		udrdto.setDiagnosisName(diagnosisName);
 		userDiagnosisReportDAO.save(udrdto);
 		
 		List<DiagnosisReportFileDTO> drdtos = Lists.newArrayList();
@@ -389,6 +392,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		diagnosisReportFileDAO.save(drdtos);
 		
 		UploadDiagnosisResponse response = new UploadDiagnosisResponse();
+		response.setDiagnosisId(udrdto.getId().toString());
 		return ServiceUtils.setResponse(response, true, "Upload diagnosis");
 	}
 

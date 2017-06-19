@@ -33,7 +33,7 @@ public interface HealthRecordManager {
 	GetTestNameValueReportResponse addTestNameReport(String authToken, String healthRecordId,
 			Date healthRecordDate, String testName, MultipartFile[] testReports) throws Exception;
 
-	void getTestNameReport(String authToken, long testReportId, HttpServletResponse httpResponse) throws Exception;
+	void getTestNameReport(String authToken, long testReportFileId, HttpServletResponse httpResponse) throws Exception;
 
 	UploadPrescriptionResponse uploadPrescription(String authToken, String healthRecordId,
 			Date healthRecordDate, MultipartFile[] prescriptions) throws Exception;
@@ -41,9 +41,9 @@ public interface HealthRecordManager {
 	UploadDiagnosisResponse uploadDiagnosis(String authToken, String healthRecordId,
 			Date healthRecordDate, String diagnosisName, MultipartFile[] diagnosises) throws Exception;
 
-	void getPrescription(String authToken, long prescriptionId, HttpServletResponse httpResponse) throws Exception;
+	void getPrescription(String authToken, long prescriptionFileId, HttpServletResponse httpResponse) throws Exception;
 
-	void getDiagnosis(String authToken, long diagnosisId, HttpServletResponse httpResponse) throws Exception;
+	void getDiagnosis(String authToken, long diagnosisFileId, HttpServletResponse httpResponse) throws Exception;
 
 	DeletePrescriptionResponse deletePrescription(String authToken, List<Long> prescriptionIds) throws Exception;
 

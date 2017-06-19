@@ -152,8 +152,8 @@ public class HealthRecordController {
 			@PathVariable(value="id") String id,
 			final HttpServletResponse httpResponse) {
 		try {
-			long testReportId = Long.parseLong(id);
-			manager.getTestNameReport(authToken, testReportId, httpResponse);
+			long testReportFileId = Long.parseLong(id);
+			manager.getTestNameReport(authToken, testReportFileId, httpResponse);
 		} catch (Exception e) {
 			setHttpException(e, httpResponse);
 		}
@@ -198,8 +198,8 @@ public class HealthRecordController {
 			@PathVariable(value="id") String id,
 			final HttpServletResponse httpResponse) {
 		try {
-			long prescriptionId = Long.parseLong(id);
-			manager.getPrescription(authToken, prescriptionId, httpResponse);
+			long prescriptionFileId = Long.parseLong(id);
+			manager.getPrescription(authToken, prescriptionFileId, httpResponse);
 		} catch (Exception e) {
 			setHttpException(e, httpResponse);
 		}
@@ -212,8 +212,8 @@ public class HealthRecordController {
 			final HttpServletResponse httpResponse
 			) {
 		try {
-			long diagnosisId = Long.parseLong(id);
-			manager.getDiagnosis(authToken, diagnosisId, httpResponse);
+			long diagnosisFileId = Long.parseLong(id);
+			manager.getDiagnosis(authToken, diagnosisFileId, httpResponse);
 		} catch (Exception e) {
 			setHttpException(e, httpResponse);
 		}

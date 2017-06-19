@@ -1,5 +1,7 @@
 package com.psquickit.managerImpl;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -324,9 +326,9 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
-	public void getTestNameReport(String authToken, long testReportId, HttpServletResponse httpResponse) throws Exception {
-		//TODO: to implement
-		
+	public void getTestNameReport(String authToken, long testReportFileId, HttpServletResponse httpResponse) throws Exception {
+		TestReportFileDTO trf = testReportFileDAO.findOne(testReportFileId);
+		getFileContent(httpResponse, trf.getFilestore());		
 	}
 
 	@Override
@@ -398,9 +400,9 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 
 	@Override
 	@Transactional
-	public void getPrescription(String authToken, long prescriptionId, HttpServletResponse httpResponse) throws Exception {
-		//TODO: to implement
-		
+	public void getPrescription(String authToken, long prescriptionFileId, HttpServletResponse httpResponse) throws Exception {
+		PrescriptionFileDTO pf = prescriptionFileDAO.findOne(prescriptionFileId);
+		getFileContent(httpResponse, pf.getFilestore());		
 	}
 	
 	private List<Prescription> populatePrescription(List<UserPrescriptionDTO> updtos) {
@@ -425,9 +427,18 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 
 	@Override
 	@Transactional
-	public void getDiagnosis(String authToken, long diagnosisId, HttpServletResponse httpResponse) throws Exception {
-		//TODO: to implement
-		
+	public void getDiagnosis(String authToken, long diagnosisReportFileId, HttpServletResponse httpResponse) throws Exception {
+		DiagnosisReportFileDTO drf = diagnosisReportFileDAO.findOne(diagnosisReportFileId);
+		getFileContent(httpResponse, drf.getFilestore());		
+	}
+
+	private void getFileContent(HttpServletResponse httpResponse, FileStoreDTO fsdto) throws IOException, Exception {
+		httpResponse.setContentType(fsdto.getDocumentType());
+		httpResponse.setHeader("Content-Disposition", "attachment;filename=" + fsdto.getFileName());
+        
+		try(OutputStream outputStream = httpResponse.getOutputStream()){
+			fileStoreManager.retrieveFile(fsdto).copyTo(outputStream);
+		}
 	}
 
 	private List<Diagnosis> populateDiagnosis(List<UserDiagnosisReportDTO> udrdtos) {

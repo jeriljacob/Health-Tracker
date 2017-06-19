@@ -21,13 +21,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.Lists;
 import com.psquickit.manager.HealthRecordManager;
+import com.psquickit.pojo.health.record.AddShareHealthRecord;
+import com.psquickit.pojo.health.record.AddShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.AddTestNameValue;
 import com.psquickit.pojo.health.record.DeleteDiagnosisResponse;
 import com.psquickit.pojo.health.record.DeletePrescriptionResponse;
 import com.psquickit.pojo.health.record.DeleteTestResponse;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
+import com.psquickit.pojo.health.record.GetShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
 import com.psquickit.pojo.health.record.ListHealthRecordResponse;
+import com.psquickit.pojo.health.record.ListShareHealthRecordResponse;
+import com.psquickit.pojo.health.record.UpdateShareHealthRecord;
+import com.psquickit.pojo.health.record.UpdateShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.UpdateTestNameValue;
 import com.psquickit.pojo.health.record.UploadDiagnosisResponse;
 import com.psquickit.pojo.health.record.UploadPrescriptionResponse;
@@ -251,6 +257,69 @@ public class HealthRecordController {
 			response = manager.deleteDiagnosis(authToken, diagnosisIds);
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "Delete diagnosis", e);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/add/share", method = RequestMethod.POST)
+	public @ResponseBody AddShareHealthRecordResponse addShareHealthRecord(
+			@RequestHeader(value="authToken", required=true) String authToken,
+			@RequestBody AddShareHealthRecord request) {
+		AddShareHealthRecordResponse response = new AddShareHealthRecordResponse();
+		try {
+			response = manager.addShareHealthRecord(authToken, request);
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "Add share health record", e);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/update/share", method = RequestMethod.POST)
+	public @ResponseBody UpdateShareHealthRecordResponse updateShareHealthRecord(
+			@RequestHeader(value="authToken", required=true) String authToken,
+			@RequestBody UpdateShareHealthRecord request) {
+		UpdateShareHealthRecordResponse response = new UpdateShareHealthRecordResponse();
+		try {
+			response = manager.updateShareHealthRecord(authToken, request);
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "Update share health record", e);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/get/share/{id}", method = RequestMethod.GET)
+	public @ResponseBody GetShareHealthRecordResponse getShareHealthRecord(
+			@RequestHeader(value="authToken", required=true) String authToken,
+			@PathVariable(value="id") String id) {
+		GetShareHealthRecordResponse response = new GetShareHealthRecordResponse();
+		try {
+			response = manager.getShareHealthRecord(authToken, Long.parseLong(id));
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "Get share health record", e);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/list/sharedby", method = RequestMethod.GET)
+	public @ResponseBody ListShareHealthRecordResponse listShareHealthRecordByMe(
+			@RequestHeader(value="authToken", required=true) String authToken) {
+		ListShareHealthRecordResponse response = new ListShareHealthRecordResponse();
+		try {
+			response = manager.listShareHealthRecordByMe(authToken);
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "List share health record by me", e);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/list/sharedto", method = RequestMethod.GET)
+	public @ResponseBody ListShareHealthRecordResponse listShareHealthRecordToMe(
+			@RequestHeader(value="authToken", required=true) String authToken) {
+		ListShareHealthRecordResponse response = new ListShareHealthRecordResponse();
+		try {
+			response = manager.listShareHealthRecordToMe(authToken);
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "List share health record to me", e);
 		}
 		return response;
 	}

@@ -37,12 +37,12 @@ public class SharedUserRecordDTO implements Serializable {
 	//bi-directional many-to-one association to UserDTO
 	@ManyToOne
 	@JoinColumn(name="SharedById")
-	private UserDTO user1;
+	private UserDTO sharedBy;
 
 	//bi-directional many-to-one association to UserDTO
 	@ManyToOne
 	@JoinColumn(name="SharedToId")
-	private UserDTO user2;
+	private UserDTO sharedTo;
 
 	public SharedUserRecordDTO() {
 	}
@@ -77,20 +77,20 @@ public class SharedUserRecordDTO implements Serializable {
 		return sharedhealthrecord;
 	}
 
-	public UserDTO getUser1() {
-		return this.user1;
+	public UserDTO getSharedBy() {
+		return this.sharedBy;
 	}
 
-	public void setUser1(UserDTO user1) {
-		this.user1 = user1;
+	public void setSharedBy(UserDTO sharedBy) {
+		this.sharedBy = sharedBy;
 	}
 
-	public UserDTO getUser2() {
-		return this.user2;
+	public UserDTO getSharedTo() {
+		return this.sharedTo;
 	}
 
-	public void setUser2(UserDTO user2) {
-		this.user2 = user2;
+	public void setSharedTo(UserDTO sharedTo) {
+		this.sharedTo = sharedTo;
 	}
 
 }

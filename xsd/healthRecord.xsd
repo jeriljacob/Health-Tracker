@@ -198,6 +198,82 @@
 			<xs:element name="diagnosisFile" type="tns:diagnosisFile" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
+	
+	<xs:element name="addShareHealthRecord">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="tns:shareRecordMinAttrs"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="addShareHealthRecordResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse">
+					<xs:sequence>
+						<xs:element name="sharedRecordId" type="xs:string" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="updateShareHealthRecord">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="tns:shareRecordAttrs"/>	
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>	
+	<xs:element name="updateShareHealthRecordResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="getShareHealthRecordResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse">
+					<xs:sequence>
+						<xs:element name="shareRecordAttrs" type="tns:shareRecordAttrs" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="listShareHealthRecordResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse">
+					<xs:sequence>
+						<xs:element name="shareRecordAttrs" type="tns:shareRecordAttrs" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:complexType name="shareRecordMinAttrs">
+		<xs:sequence>
+			<xs:element name="sharedBy" type="xs:string" />
+			<xs:element name="sharedTo" type="xs:string" />
+			<xs:element name="healthRecord" type="xs:string" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="shareRecordAttrs">
+		<xs:complexContent>
+			<xs:extension base="tns:shareRecordMinAttrs">
+				<xs:sequence>		
+					<xs:element name="sharedRecordId" type="xs:string"/>
+				</xs:sequence>					
+			</xs:extension>		
+		</xs:complexContent>
+	</xs:complexType>
 
 </xs:schema>
 	

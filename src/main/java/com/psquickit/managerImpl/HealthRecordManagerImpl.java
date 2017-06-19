@@ -18,6 +18,8 @@ import com.psquickit.common.HandledException;
 import com.psquickit.dao.DiagnosisReportFileDAO;
 import com.psquickit.dao.HealthRecordDAO;
 import com.psquickit.dao.PrescriptionFileDAO;
+import com.psquickit.dao.SharedHealthRecordDAO;
+import com.psquickit.dao.SharedUserRecordDAO;
 import com.psquickit.dao.SubTestNameValueDAO;
 import com.psquickit.dao.TestReportFileDAO;
 import com.psquickit.dao.UserDAO;
@@ -28,6 +30,8 @@ import com.psquickit.dto.DiagnosisReportFileDTO;
 import com.psquickit.dto.FileStoreDTO;
 import com.psquickit.dto.HealthRecordDTO;
 import com.psquickit.dto.PrescriptionFileDTO;
+import com.psquickit.dto.SharedHealthRecordDTO;
+import com.psquickit.dto.SharedUserRecordDTO;
 import com.psquickit.dto.SubTestNameValueDTO;
 import com.psquickit.dto.TestReportFileDTO;
 import com.psquickit.dto.UserDiagnosisReportDTO;
@@ -36,6 +40,8 @@ import com.psquickit.dto.UserTestNameValueReportDTO;
 import com.psquickit.manager.AuthenticationManager;
 import com.psquickit.manager.FileStoreManager;
 import com.psquickit.manager.HealthRecordManager;
+import com.psquickit.pojo.health.record.AddShareHealthRecord;
+import com.psquickit.pojo.health.record.AddShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.AddTestNameValue;
 import com.psquickit.pojo.health.record.DeleteDiagnosisResponse;
 import com.psquickit.pojo.health.record.DeletePrescriptionResponse;
@@ -43,15 +49,20 @@ import com.psquickit.pojo.health.record.DeleteTestResponse;
 import com.psquickit.pojo.health.record.Diagnosis;
 import com.psquickit.pojo.health.record.DiagnosisFile;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
+import com.psquickit.pojo.health.record.GetShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
 import com.psquickit.pojo.health.record.HealthRecord;
 import com.psquickit.pojo.health.record.ListHealthRecordResponse;
+import com.psquickit.pojo.health.record.ListShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.Prescription;
 import com.psquickit.pojo.health.record.PrescriptionFile;
+import com.psquickit.pojo.health.record.ShareRecordAttrs;
 import com.psquickit.pojo.health.record.TestNameValue;
 import com.psquickit.pojo.health.record.TestNameValueById;
 import com.psquickit.pojo.health.record.TestNameValueReport;
 import com.psquickit.pojo.health.record.TestReportFile;
+import com.psquickit.pojo.health.record.UpdateShareHealthRecord;
+import com.psquickit.pojo.health.record.UpdateShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.UpdateTestNameValue;
 import com.psquickit.pojo.health.record.UploadDiagnosisResponse;
 import com.psquickit.pojo.health.record.UploadPrescriptionResponse;
@@ -92,6 +103,12 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	
 	@Autowired
 	UserDiagnosisReportDAO userDiagnosisReportDAO;
+	
+	@Autowired
+	SharedUserRecordDAO sharedUserRecordDAO;
+	
+	@Autowired
+	SharedHealthRecordDAO sharedHealthRecordDAO;
 	
 	@Override
 	@Transactional
@@ -327,7 +344,13 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 
 	@Override
 	public void getTestNameReport(String authToken, long testReportFileId, HttpServletResponse httpResponse) throws Exception {
+		long userId = authManager.getUserId(authToken);
 		TestReportFileDTO trf = testReportFileDAO.findOne(testReportFileId);
+		long trfUserId = trf.getUsertestnamevaluereport().getHealthrecord().getUser().getId();
+		if (trfUserId != userId) {
+			throw new HandledException("NOT_SAME_USER", "User who created the health record & the user"
+					+ "who is accessing test report are different.");
+		}
 		getFileContent(httpResponse, trf.getFilestore());		
 	}
 
@@ -401,7 +424,13 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional
 	public void getPrescription(String authToken, long prescriptionFileId, HttpServletResponse httpResponse) throws Exception {
+		long userId = authManager.getUserId(authToken);
 		PrescriptionFileDTO pf = prescriptionFileDAO.findOne(prescriptionFileId);
+		long pfUserId = pf.getUserprescription().getHealthrecord().getUser().getId();
+		if (pfUserId != userId) {
+			throw new HandledException("NOT_SAME_USER", "User who created the health record & the user"
+					+ "who is accessing test report are different.");
+		}
 		getFileContent(httpResponse, pf.getFilestore());		
 	}
 	
@@ -428,7 +457,13 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional
 	public void getDiagnosis(String authToken, long diagnosisReportFileId, HttpServletResponse httpResponse) throws Exception {
+		long userId = authManager.getUserId(authToken);
 		DiagnosisReportFileDTO drf = diagnosisReportFileDAO.findOne(diagnosisReportFileId);
+		long drfUserId = drf.getUserdiagnosisreport().getHealthrecord().getUser().getId();
+		if (drfUserId != userId) {
+			throw new HandledException("NOT_SAME_USER", "User who created the health record & the user"
+					+ "who is accessing test report are different.");
+		}		
 		getFileContent(httpResponse, drf.getFilestore());		
 	}
 
@@ -475,5 +510,133 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		DeleteDiagnosisResponse response = new DeleteDiagnosisResponse();
 		//TODO: to implement
 		return ServiceUtils.setResponse(response, true, "Delete diagnosis");
+	}
+
+	@Override
+	public AddShareHealthRecordResponse addShareHealthRecord(String authToken, AddShareHealthRecord request)
+			throws Exception {
+		long userId = authManager.getUserId(authToken);
+		
+		long sharedBy = Long.parseLong(request.getSharedBy());
+		long sharedTo = Long.parseLong(request.getSharedTo());
+		
+		if (sharedBy != userId) {
+			throw new HandledException("NOT_SAME_USER", "Logged in user is not the one whose report is being shared.");
+		}
+		
+		SharedUserRecordDTO surdto = new SharedUserRecordDTO();
+		surdto.setSharedBy(userDAO.findOne(sharedBy));
+		surdto.setSharedTo(userDAO.findOne(sharedTo));
+		surdto = sharedUserRecordDAO.save(surdto);
+		
+		for (String str: request.getHealthRecord()) {
+			SharedHealthRecordDTO shrdto = new SharedHealthRecordDTO();
+			HealthRecordDTO hrdto = healthRecordDAO.findOne(Long.parseLong(str));
+			if (hrdto.getUser().getId() != sharedBy) {
+				throw new HandledException("NOT_SAME_USER", "Logged in user is not the one whose report is being shared.");
+			}
+			shrdto.setHealthrecord(hrdto);
+			shrdto.setShareduserrecord(surdto);
+			sharedHealthRecordDAO.save(shrdto);
+		}
+		
+		AddShareHealthRecordResponse response = new AddShareHealthRecordResponse();
+		response.setSharedRecordId(Long.toString(surdto.getId()));
+		return ServiceUtils.setResponse(response, true, "Add shared record");
+	}
+
+	@Override
+	public GetShareHealthRecordResponse getShareHealthRecord(String authToken, long shareHealthRecordId)
+			throws Exception {
+		long userId = authManager.getUserId(authToken);
+		
+		SharedUserRecordDTO dto = sharedUserRecordDAO.findOne(shareHealthRecordId);
+		if (dto.getSharedBy().getId() != userId || dto.getSharedTo().getId() != userId) {
+			throw new HandledException("INVALID_USER_ACCESS", "This user does not have access to this record");
+		}
+		GetShareHealthRecordResponse response = new GetShareHealthRecordResponse();
+		response.setShareRecordAttrs(populateSharedRecord(dto));
+		return ServiceUtils.setResponse(response, true, "Get shared record");
+	}
+	
+	private ShareRecordAttrs populateSharedRecord(SharedUserRecordDTO dto) {
+		ShareRecordAttrs shr = new ShareRecordAttrs();
+		shr.setSharedBy(Long.toString(dto.getSharedBy().getId()));
+		shr.setSharedTo(Long.toString(dto.getSharedTo().getId()));
+		List<SharedHealthRecordDTO> shrdtos = dto.getSharedhealthrecords();
+		List<String> hrs = Lists.newArrayList();
+		for (SharedHealthRecordDTO shrdto: shrdtos) {
+			hrs.add(Long.toString(shrdto.getHealthrecord().getId()));
+		}
+		shr.getHealthRecord().addAll(hrs);
+		return shr;
+	}
+
+	@Override
+	public UpdateShareHealthRecordResponse updateShareHealthRecord(String authToken, UpdateShareHealthRecord request)
+			throws Exception {
+		
+		long userId = authManager.getUserId(authToken);
+		
+		long sharedBy = Long.parseLong(request.getSharedBy());
+		long sharedTo = Long.parseLong(request.getSharedTo());
+		
+		if (sharedBy != userId) {
+			throw new HandledException("NOT_SAME_USER", "Logged in user is not the one whose report is being shared.");
+		}
+		
+		SharedUserRecordDTO surdto = sharedUserRecordDAO.findOne(Long.parseLong(request.getSharedRecordId()));
+		if (surdto.getSharedBy().getId() != sharedBy) {
+			throw new HandledException("SHARED_BY_CANNOT_BE_CHANGED", "Shared by user cannot be changed.");
+		}
+		surdto.setSharedBy(userDAO.findOne(sharedBy));
+		surdto.setSharedTo(userDAO.findOne(sharedTo));
+		surdto = sharedUserRecordDAO.save(surdto);
+		
+		for (String str: request.getHealthRecord()) {
+			SharedHealthRecordDTO shrdto = new SharedHealthRecordDTO();
+			HealthRecordDTO hrdto = healthRecordDAO.findOne(Long.parseLong(str));
+			if (hrdto.getUser().getId() != sharedBy) {
+				throw new HandledException("NOT_SAME_USER", "Logged in user is not the one whose report is being shared.");
+			}
+			shrdto.setHealthrecord(hrdto);
+			shrdto.setShareduserrecord(surdto);
+			sharedHealthRecordDAO.save(shrdto);
+		}
+		
+		UpdateShareHealthRecordResponse response = new UpdateShareHealthRecordResponse();
+		return ServiceUtils.setResponse(response, true, "Update shared record");
+	}
+
+	@Override
+	public ListShareHealthRecordResponse listShareHealthRecordByMe(String authToken) throws Exception {
+		long userId = authManager.getUserId(authToken);
+		
+		List<SharedUserRecordDTO> dtos = sharedUserRecordDAO.listRecordsSharedBy(userId);
+		List<ShareRecordAttrs> srs = Lists.newArrayList();
+
+		for (SharedUserRecordDTO dto: dtos) {
+			srs.add(populateSharedRecord(dto));
+		}
+		
+		ListShareHealthRecordResponse response = new ListShareHealthRecordResponse();
+		response.getShareRecordAttrs().addAll(srs);
+		return ServiceUtils.setResponse(response, true, "List record shared by me");
+	}
+	
+	@Override
+	public ListShareHealthRecordResponse listShareHealthRecordToMe(String authToken) throws Exception {
+		long userId = authManager.getUserId(authToken);
+		
+		List<SharedUserRecordDTO> dtos = sharedUserRecordDAO.listRecordsSharedTo(userId);
+		List<ShareRecordAttrs> srs = Lists.newArrayList();
+
+		for (SharedUserRecordDTO dto: dtos) {
+			srs.add(populateSharedRecord(dto));
+		}
+		
+		ListShareHealthRecordResponse response = new ListShareHealthRecordResponse();
+		response.getShareRecordAttrs().addAll(srs);
+		return ServiceUtils.setResponse(response, true, "List record shared to me");
 	}
 }

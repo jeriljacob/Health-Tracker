@@ -62,12 +62,12 @@ public class UserDTO implements Serializable {
 	private List<HealthRecordDTO> healthrecords;
 
 	//bi-directional many-to-one association to SharedUserRecordDTO
-	@OneToMany(mappedBy="user1")
-	private List<SharedUserRecordDTO> shareduserrecords1;
+	@OneToMany(mappedBy="sharedBy")
+	private List<SharedUserRecordDTO> sharedBy;
 
 	//bi-directional many-to-one association to SharedUserRecordDTO
-	@OneToMany(mappedBy="user2")
-	private List<SharedUserRecordDTO> shareduserrecords2;
+	@OneToMany(mappedBy="sharedTo")
+	private List<SharedUserRecordDTO> sharedTo;
 
 	//bi-directional many-to-one association to AddressDTO
 	@ManyToOne
@@ -228,45 +228,45 @@ public class UserDTO implements Serializable {
 	}
 
 	public List<SharedUserRecordDTO> getShareduserrecords1() {
-		return this.shareduserrecords1;
+		return this.sharedBy;
 	}
 
 	public void setShareduserrecords1(List<SharedUserRecordDTO> shareduserrecords1) {
-		this.shareduserrecords1 = shareduserrecords1;
+		this.sharedBy = shareduserrecords1;
 	}
 
 	public SharedUserRecordDTO addShareduserrecords1(SharedUserRecordDTO shareduserrecords1) {
 		getShareduserrecords1().add(shareduserrecords1);
-		shareduserrecords1.setUser1(this);
+		shareduserrecords1.setSharedBy(this);
 
 		return shareduserrecords1;
 	}
 
 	public SharedUserRecordDTO removeShareduserrecords1(SharedUserRecordDTO shareduserrecords1) {
 		getShareduserrecords1().remove(shareduserrecords1);
-		shareduserrecords1.setUser1(null);
+		shareduserrecords1.setSharedBy(null);
 
 		return shareduserrecords1;
 	}
 
 	public List<SharedUserRecordDTO> getShareduserrecords2() {
-		return this.shareduserrecords2;
+		return this.sharedTo;
 	}
 
 	public void setShareduserrecords2(List<SharedUserRecordDTO> shareduserrecords2) {
-		this.shareduserrecords2 = shareduserrecords2;
+		this.sharedTo = shareduserrecords2;
 	}
 
 	public SharedUserRecordDTO addShareduserrecords2(SharedUserRecordDTO shareduserrecords2) {
 		getShareduserrecords2().add(shareduserrecords2);
-		shareduserrecords2.setUser2(this);
+		shareduserrecords2.setSharedTo(this);
 
 		return shareduserrecords2;
 	}
 
 	public SharedUserRecordDTO removeShareduserrecords2(SharedUserRecordDTO shareduserrecords2) {
 		getShareduserrecords2().remove(shareduserrecords2);
-		shareduserrecords2.setUser2(null);
+		shareduserrecords2.setSharedTo(null);
 
 		return shareduserrecords2;
 	}

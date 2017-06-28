@@ -14,6 +14,7 @@
 				<xs:sequence>
 					<xs:element name="clinicAddress" type="ns2:address" maxOccurs="unbounded"/>
 					<xs:element name="practiceArea" type="ns2:address" />
+					<xs:element name="centralMCIRegistrationNumber" type="xs:string" />
 					<xs:element name="inPersonConsultant" type="xs:string" />
 					<xs:element name="eConsultant" type="xs:string" />
 					<xs:element name="clinicContactNo" type="xs:string" />
@@ -168,6 +169,31 @@
 			</xs:complexContent>
 		</xs:complexType>
 	</xs:element>
+	
+	<xs:element name="doctorUsersResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse">
+					<xs:sequence>
+						<xs:element name="doctorUsers" type="tns:doctorUserAttrs" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="doctorUserAttrs">
+		<xs:sequence>
+			<xs:element name="firstName" type="xs:string" />
+			<xs:element name="lastName" type="xs:string" />
+			<xs:element name="userId" type="xs:string" />
+			<xs:element name="profileImage" type="xs:string" />
+			<xs:element name="gender" type="xs:string" />
+			<xs:element name="degrees" type="tns:doctorDegree" maxOccurs="unbounded" />
+			<xs:element name="specialization" type="tns:doctorSpecialization" maxOccurs="unbounded" />
+			<xs:element name="clinicAddress" type="ns2:address" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
 	
 </xs:schema>
 	

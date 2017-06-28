@@ -2,6 +2,7 @@ package com.psquickit.managerImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -44,16 +45,19 @@ import com.psquickit.pojo.user.Degree;
 import com.psquickit.pojo.user.DoctorDegree;
 import com.psquickit.pojo.user.DoctorMci;
 import com.psquickit.pojo.user.DoctorSpecialization;
+import com.psquickit.pojo.user.DoctorUserAttrs;
 import com.psquickit.pojo.user.DoctorUserDetailResponse;
 import com.psquickit.pojo.user.DoctorUserDetails;
 import com.psquickit.pojo.user.DoctorUserRegisterRequest;
 import com.psquickit.pojo.user.DoctorUserRegisterResponse;
 import com.psquickit.pojo.user.DoctorUserUpdateRequest;
 import com.psquickit.pojo.user.DoctorUserUpdateResponse;
+import com.psquickit.pojo.user.DoctorUsersResponse;
 import com.psquickit.pojo.user.ListAllDegreeResponse;
 import com.psquickit.pojo.user.ListAllMciResponse;
 import com.psquickit.pojo.user.ListAllSpecializationResponse;
 import com.psquickit.pojo.user.Mci;
+import com.psquickit.pojo.user.SearchUserRequest;
 import com.psquickit.pojo.user.Specialization;
 import com.psquickit.util.ServiceUtils;
 
@@ -360,6 +364,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		doctorUserDTO.setClinicAlternateContactNumber(request.getAlternateContactNo());
 		doctorUserDTO.setInPersonConsultant(request.getInPersonConsultant());
 		doctorUserDTO.setEConsultant(request.getEConsultant());
+		doctorUserDTO.setCentralMciRegistrationNumber(request.getCentralMCIRegistrationNumber());
 		return doctorUserDTO;
 	}
 	
@@ -385,6 +390,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 			details.setInPersonConsultant(doctorUserDTO.getInPersonConsultant());
 			details.setEConsultant(doctorUserDTO.getEConsultant());
 			details.setClinicContactNo(doctorUserDTO.getClinicContactNumber());
+			details.setCentralMCIRegistrationNumber(doctorUserDTO.getCentralMciRegistrationNumber());
 			details.getDegrees().addAll(toDoctorDegree(doctorDegreeDTOs));
 			details.getSpecialization().addAll(toDoctorSpecialization(doctorSpecializationDTOs));
 			details.getMciReg().addAll(toDoctorMci(doctorMciDTOs));
@@ -445,5 +451,29 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		}
 		return list;
 	}
-	
+
+	@Override
+	@Transactional
+	public DoctorUsersResponse searchDoctor(String authToken, SearchUserRequest request) throws Exception {
+		long userId = authManager.getUserId(authToken);
+		List<UserDTO> dtos = userDAO.searchUserByFirstName(request.getFirstName());
+		List<DoctorUserAttrs> list = new ArrayList<>();
+		DoctorUsersResponse response = new DoctorUsersResponse();
+		for(UserDTO dto : dtos) {
+			if(UserType.fromName(dto.getUserType()) == UserType.DOCTOR_USER){
+				DoctorUserAttrs attr = new DoctorUserAttrs();
+				FileStoreDTO profilePicFileStoreDTO = dto.getProfileImageFileStore();
+				String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
+				attr.setProfileImage(profileImage);
+				attr.setFirstName(dto.getFirstName());
+				attr.setLastName(dto.getLastName());
+				attr.setUserId(Long.toString(dto.getId()));
+				attr.setGender(dto.getGender());
+				list.add(attr);
+			}
+		}
+		response.getDoctorUsers().addAll(list);
+		return ServiceUtils.setResponse(response, true, "Doctor List");
+	}
+
 }

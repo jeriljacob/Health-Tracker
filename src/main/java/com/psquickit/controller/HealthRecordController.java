@@ -59,6 +59,24 @@ public class HealthRecordController {
 		return response;
 	}
 	
+	@RequestMapping(value = "/list/sharedhealthrecord", method = RequestMethod.GET)
+	public @ResponseBody ListHealthRecordResponse listHealthRecord(
+			@RequestHeader(value="authToken", required=true) String authToken,
+			@RequestParam(value="healthRecordId", required=true) String[] healthRecordIds
+			) {
+		ListHealthRecordResponse response = new ListHealthRecordResponse();
+		try {
+			List<Long> ids = Lists.newArrayList();
+			for (String healthRecordId: healthRecordIds) {
+				ids.add(Long.parseLong(healthRecordId));
+			}
+			response = manager.listHealthRecord(authToken, ids);
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "List shared health record", e);
+		}
+		return response;
+	}
+	
 	@RequestMapping(value = "/get/healthrecord/{healthrecordid}", method = RequestMethod.GET)
 	public @ResponseBody GetHealthRecordResponse getHealthRecord(
 			@RequestHeader(value="authToken", required=true) String authToken,

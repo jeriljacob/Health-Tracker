@@ -75,9 +75,17 @@ public class IndividualUserManagerImpl implements IndividualUserManager {
 
 	private IndividualUserRegisterResponse registerUser(IndividualUserRegisterRequest request,
 			FileStoreDTO profilePicFileStoreDTO) {
-		AddressDTO alternateAddressDTO = UserCommonManagerImpl.populateAlternateAddressDTO(request);
-		AddressDTO permanentAddressDTO = UserCommonManagerImpl.populatePermanentAddressDTO(request);
-		addressDAO.save(Lists.newArrayList(alternateAddressDTO, permanentAddressDTO));
+		AddressDTO alternateAddressDTO = null, permanentAddressDTO = null;
+		if(request.getPermanentAddress()!=null) {
+			alternateAddressDTO = UserCommonManagerImpl.populateAlternateAddressDTO(request);
+			addressDAO.save(alternateAddressDTO);
+		}
+		
+		if(request.getAlternateAddress()!=null) {
+			permanentAddressDTO = UserCommonManagerImpl.populatePermanentAddressDTO(request);
+			addressDAO.save(permanentAddressDTO);
+		}
+		
 		UserDTO userDTO = UserCommonManagerImpl.createUserDTO(request, profilePicFileStoreDTO, alternateAddressDTO, permanentAddressDTO);
 		userDAO.save(userDTO);
 		IndividualUserRegisterResponse response = new IndividualUserRegisterResponse();

@@ -22,9 +22,12 @@ public class UserCommonManagerImpl {
 		userDTO.setLastName(userDetails.getLastName());
 		userDTO.setContactNumber(userDetails.getContactNo());
 		userDTO.setAlternateContactNumber(userDetails.getAlternateContactNo());
-		
-		userDTO.setAlternateAddress(alternateAddressDTO);
-		userDTO.setPermanentAddress(permanentAddressDTO);
+		if (alternateAddressDTO != null) {
+			userDTO.setAlternateAddress(alternateAddressDTO);
+		}
+		if (permanentAddressDTO != null) {
+			userDTO.setPermanentAddress(permanentAddressDTO);
+		}
 		userDTO.setEmail(userDetails.getEmail());
 		userDTO.setUserType(UserType.fromName(userDetails.getUserType()).getName());
 		userDTO.setProfileImageFileStore(profilePicFileStoreDTO);
@@ -61,7 +64,7 @@ public class UserCommonManagerImpl {
 	
 	public static <T extends BasicUserDetails> AddressDTO populatePermanentAddressDTO (T userDetails) {
 		AddressDTO permanentAddressDTO = new AddressDTO();
-		return populateAlternateAddressDTO(userDetails, permanentAddressDTO);
+		return populatePermanentAddressDTO(userDetails, permanentAddressDTO);
 	}
 	
 	public static <T extends BasicUserDetails> AddressDTO populatePermanentAddressDTO(T userDetails, AddressDTO permanentAddressDTO) {

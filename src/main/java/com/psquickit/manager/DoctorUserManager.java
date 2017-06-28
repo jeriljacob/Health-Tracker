@@ -7,9 +7,11 @@ import com.psquickit.pojo.user.DoctorUserRegisterRequest;
 import com.psquickit.pojo.user.DoctorUserRegisterResponse;
 import com.psquickit.pojo.user.DoctorUserUpdateRequest;
 import com.psquickit.pojo.user.DoctorUserUpdateResponse;
+import com.psquickit.pojo.user.DoctorUsersResponse;
 import com.psquickit.pojo.user.ListAllDegreeResponse;
 import com.psquickit.pojo.user.ListAllMciResponse;
 import com.psquickit.pojo.user.ListAllSpecializationResponse;
+import com.psquickit.pojo.user.SearchUserRequest;
 
 public interface DoctorUserManager {
 
@@ -29,5 +31,7 @@ public interface DoctorUserManager {
 	DoctorUserRegisterResponse registerDoctor(String secretToken, DoctorUserRegisterRequest request) throws Exception;
 
 	DoctorUserUpdateResponse updateDoctor(String authToken, DoctorUserUpdateRequest request) throws Exception;
+
+	DoctorUsersResponse searchDoctor(String authToken, SearchUserRequest request) throws Exception;
 
 }

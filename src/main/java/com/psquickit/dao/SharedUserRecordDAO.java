@@ -18,4 +18,7 @@ public interface SharedUserRecordDAO extends JpaRepository<SharedUserRecordDTO, 
 	@Query("Select s from SharedUserRecordDTO s where s.sharedTo.id = :sharedToId")
 	List<SharedUserRecordDTO> listRecordsSharedTo(@Param("sharedToId") long userId);
 
+	@Query("Select s from SharedUserRecordDTO s where s.sharedTo.id = :sharedToId and s.sharedBy.id = :sharedById")
+	SharedUserRecordDTO getSharedUserRecord(@Param("sharedById") long sharedBy, @Param("sharedToId") long sharedTo);
+
 }

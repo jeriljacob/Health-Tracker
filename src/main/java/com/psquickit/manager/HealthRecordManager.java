@@ -56,6 +56,8 @@ public interface HealthRecordManager {
 	DeleteDiagnosisResponse deleteDiagnosis(String authToken, List<Long> diagnosisIds) throws Exception;
 
 	ListHealthRecordResponse listHealthRecord(String authToken) throws Exception;
+	
+	ListHealthRecordResponse listHealthRecord(String authToken, List<Long> sharedHealthRecordIds) throws Exception;
 
 	AddShareHealthRecordResponse addShareHealthRecord(String authToken, AddShareHealthRecord request) throws Exception;
 
@@ -66,4 +68,5 @@ public interface HealthRecordManager {
 	ListShareHealthRecordResponse listShareHealthRecordByMe(String authToken) throws Exception;
 	
 	ListShareHealthRecordResponse listShareHealthRecordToMe(String authToken) throws Exception;
+	
 }

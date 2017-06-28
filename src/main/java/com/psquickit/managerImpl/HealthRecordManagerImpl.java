@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.psquickit.common.HandledException;
 import com.psquickit.dao.DiagnosisReportFileDAO;
@@ -34,6 +35,7 @@ import com.psquickit.dto.SharedHealthRecordDTO;
 import com.psquickit.dto.SharedUserRecordDTO;
 import com.psquickit.dto.SubTestNameValueDTO;
 import com.psquickit.dto.TestReportFileDTO;
+import com.psquickit.dto.UserDTO;
 import com.psquickit.dto.UserDiagnosisReportDTO;
 import com.psquickit.dto.UserPrescriptionDTO;
 import com.psquickit.dto.UserTestNameValueReportDTO;
@@ -113,11 +115,25 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional
 	public ListHealthRecordResponse listHealthRecord(String authToken) throws Exception {
+		//used by individual user
 		long userId = authManager.getUserId(authToken);
 		List<HealthRecordDTO> hrdtos = healthRecordDAO.listHealthRecordByUserId(userId);
+		return listHealthRecord(hrdtos);
+	}
+
+	@Override
+	@Transactional
+	public ListHealthRecordResponse listHealthRecord(String authToken, List<Long> healthRecordIdsShared) throws Exception {
+		//used by doctor user
+		long userId = authManager.getUserId(authToken);
+		List<HealthRecordDTO> hrdtos = sharedHealthRecordDAO.listSharedHealthRecordsIn(healthRecordIdsShared, userId);
+		return listHealthRecord(hrdtos);
+	}
+	
+	private ListHealthRecordResponse listHealthRecord(List<HealthRecordDTO> hrdtos) {
 		List<HealthRecord> hrs = Lists.newArrayList();
 		for (HealthRecordDTO hrdto: hrdtos) {
-			HealthRecord hr = populateHealthRecord(hrdto.getId(), userId);
+			HealthRecord hr = populateHealthRecord(hrdto);
 			hrs.add(hr);
 		}
 		
@@ -131,20 +147,21 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	public GetHealthRecordResponse getHealthRecord(String authToken, long healthRecordId) throws Exception {
 		long userId = authManager.getUserId(authToken);
 		GetHealthRecordResponse response = new GetHealthRecordResponse();
-		response.setHealthRecord(populateHealthRecord(healthRecordId, userId));
+		//TODO: Not sure if this api will be used as we already have the list apis. at present, we are not
+		//giving this api for the doctor user
+		HealthRecordDTO hdto = healthRecordDAO.getByHealthRecordIdAndUserId(healthRecordId, userId);
+		response.setHealthRecord(populateHealthRecord(hdto));
 		return ServiceUtils.setResponse(response, true, "Get health record");
 	}
 	
-	private HealthRecord populateHealthRecord(long healthRecordId, long userId) {
-		HealthRecordDTO hdto = healthRecordDAO.getByHealthRecordIdAndUserId(healthRecordId, userId);
-		
-		List<UserTestNameValueReportDTO> tdtos = userTestNameValueReportDAO.listUserTestNameValueReportByHealthRecordIdAndUserId(healthRecordId, userId);
+	private HealthRecord populateHealthRecord(HealthRecordDTO hdto) {
+		List<UserTestNameValueReportDTO> tdtos = hdto.getUsertestnamevaluereports();
 		List<TestNameValueReport> tnvrs = populateTestNameValueReport(tdtos);
 		
-		List<UserPrescriptionDTO> updtos = userPrescriptionDAO.listUserPrescriptionByHealthRecordIdAndUserId(healthRecordId, userId);
+		List<UserPrescriptionDTO> updtos = hdto.getUserprescriptions();
 		List<Prescription> ps = populatePrescription(updtos);
 		
-		List<UserDiagnosisReportDTO> udrdtos = userDiagnosisReportDAO.listUserDiagnosisReportByHealthRecordIdAndUserId(healthRecordId, userId);
+		List<UserDiagnosisReportDTO> udrdtos = hdto.getUserdiagnosisreports();
 		List<Diagnosis> ds = populateDiagnosis(udrdtos);
 		
 		HealthRecord hr = new HealthRecord();
@@ -152,6 +169,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		hr.getPrescription().addAll(ps);
 		hr.getDiagnosis().addAll(ds);
 		hr.setHealthRecordDate(hdto.getRecordDate());
+		hr.setHealthRecordId(Long.toString(hdto.getId()));  
 		
 		return hr;
 	}
@@ -167,6 +185,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			hdto = new HealthRecordDTO();
 			hdto.setUser(userDAO.findOne(userId));
 			hdto.setRecordDate(new Timestamp(request.getHealthRecordDate().getTime()));
+			hdto = healthRecordDAO.save(hdto);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(request.getHealthRecordId()), userId);
 		}
@@ -195,7 +214,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		
 		healthRecordDAO.save(hdto);
 		
-		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
+		GetTestNameValueReportResponse response = getTestNameValueReport(authToken, hdto.getId());
 		return ServiceUtils.setResponse(response, true, "Add test name value");
 	}
 
@@ -204,13 +223,28 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		if (hdto == null) {
 			throw new HandledException("INVALID_HEALTH_RECORD_ID", "Invalid health record ID: " + healthRecordId);
 		}
-		//TODO: Here we need to add the functionality for those doctors with whom
-		//the user has shared his health record to add things.
-		if (hdto.getUser().getId() != userId) {
-			throw new HandledException("NOT_SAME_USER", "User who created the health record & the user"
-					+ "who is adding test reports are different.");
-		}
+		validateHealthRecordAccess(hdto, userId);
 		return hdto;
+	}
+
+	private void validateHealthRecordAccess(long healthRecordId, long userId) throws Exception {
+		HealthRecordDTO hdto = healthRecordDAO.findOne(healthRecordId);
+		if (hdto == null) {
+			throw new HandledException("INVALID_HEALTH_RECORD_ID", "Invalid health record ID: " + healthRecordId);
+		}
+		validateHealthRecordAccess(hdto, userId);
+	}
+	
+	private void validateHealthRecordAccess(HealthRecordDTO hdto, long userId) throws Exception {
+		if (hdto.getUser().getId() != userId) {
+			//check if this health record was shared with this user id
+			SharedHealthRecordDTO shrdto = sharedHealthRecordDAO.findSharedHealthRecordByHealthRecordId(hdto.getId());
+			if (shrdto != null && (shrdto.getShareduserrecord().getSharedTo().getId() == userId)) {
+				//implies user has shared this record
+				return;
+			}
+			throw new HandledException("NOT_SAME_USER", "User " + userId + " cannot access the health record.");
+		}
 	}
 	
 	@Override
@@ -249,7 +283,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			}
 		}
 		
-		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
+		GetTestNameValueReportResponse response = getTestNameValueReport(authToken, hdto.getId());
 		return ServiceUtils.setResponse(response, true, "Update test name value");
 	}
 
@@ -257,7 +291,8 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Transactional
 	public GetTestNameValueReportResponse getTestNameValueReport(String authToken, long healthRecordId) throws Exception {
 		long userId = authManager.getUserId(authToken);
-		List<UserTestNameValueReportDTO> tdtos = userTestNameValueReportDAO.listUserTestNameValueReportByHealthRecordIdAndUserId(healthRecordId, userId);
+		validateHealthRecordAccess(healthRecordId, userId);
+		List<UserTestNameValueReportDTO> tdtos = userTestNameValueReportDAO.listUserTestNameValueReportByHealthRecordId(healthRecordId);
 		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
 		response.getTestNameValueReport().addAll(populateTestNameValueReport(tdtos));
 		return ServiceUtils.setResponse(response, true, "Get tests");
@@ -338,7 +373,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		}
 		testReportFileDAO.save(trdtos);
 		
-		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
+		GetTestNameValueReportResponse response = getTestNameValueReport(authToken, hdto.getId());
 		return ServiceUtils.setResponse(response, true, "Add a test report");
 	}
 
@@ -346,11 +381,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	public void getTestNameReport(String authToken, long testReportFileId, HttpServletResponse httpResponse) throws Exception {
 		long userId = authManager.getUserId(authToken);
 		TestReportFileDTO trf = testReportFileDAO.findOne(testReportFileId);
-		long trfUserId = trf.getUsertestnamevaluereport().getHealthrecord().getUser().getId();
-		if (trfUserId != userId) {
-			throw new HandledException("NOT_SAME_USER", "User who created the health record & the user"
-					+ "who is accessing test report are different.");
-		}
+		validateHealthRecordAccess(trf.getUsertestnamevaluereport().getHealthrecord(), userId);
 		getFileContent(httpResponse, trf.getFilestore());		
 	}
 
@@ -364,6 +395,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			hdto = new HealthRecordDTO();
 			hdto.setUser(userDAO.getOne(userId));
 			hdto.setRecordDate(new Timestamp(healthRecordDate.getTime()));
+			hdto = healthRecordDAO.save(hdto);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);
 		}
@@ -397,6 +429,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			hdto = new HealthRecordDTO();
 			hdto.setUser(userDAO.getOne(userId));
 			hdto.setRecordDate(new Timestamp(healthRecordDate.getTime()));
+			hdto = healthRecordDAO.save(hdto);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);
 		}
@@ -426,11 +459,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	public void getPrescription(String authToken, long prescriptionFileId, HttpServletResponse httpResponse) throws Exception {
 		long userId = authManager.getUserId(authToken);
 		PrescriptionFileDTO pf = prescriptionFileDAO.findOne(prescriptionFileId);
-		long pfUserId = pf.getUserprescription().getHealthrecord().getUser().getId();
-		if (pfUserId != userId) {
-			throw new HandledException("NOT_SAME_USER", "User who created the health record & the user"
-					+ "who is accessing test report are different.");
-		}
+		validateHealthRecordAccess(pf.getUserprescription().getHealthrecord(), userId);
 		getFileContent(httpResponse, pf.getFilestore());		
 	}
 	
@@ -459,11 +488,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	public void getDiagnosis(String authToken, long diagnosisReportFileId, HttpServletResponse httpResponse) throws Exception {
 		long userId = authManager.getUserId(authToken);
 		DiagnosisReportFileDTO drf = diagnosisReportFileDAO.findOne(diagnosisReportFileId);
-		long drfUserId = drf.getUserdiagnosisreport().getHealthrecord().getUser().getId();
-		if (drfUserId != userId) {
-			throw new HandledException("NOT_SAME_USER", "User who created the health record & the user"
-					+ "who is accessing test report are different.");
-		}		
+		validateHealthRecordAccess(drf.getUserdiagnosisreport().getHealthrecord(), userId);
 		getFileContent(httpResponse, drf.getFilestore());		
 	}
 
@@ -481,6 +506,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		for (UserDiagnosisReportDTO udrdto: udrdtos) {
 			Diagnosis d = new Diagnosis();
 			d.setId(Long.toString(udrdto.getId()));
+			d.setName(udrdto.getDiagnosisName());
 			
 			List<DiagnosisFile> dfs = Lists.newArrayList();
 			List<DiagnosisReportFileDTO> pfdtos = diagnosisReportFileDAO.listDiagnosisReportFileByDiagnosisId(udrdto.getId());
@@ -513,24 +539,31 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
+	@Transactional
 	public AddShareHealthRecordResponse addShareHealthRecord(String authToken, AddShareHealthRecord request)
 			throws Exception {
 		long userId = authManager.getUserId(authToken);
 		
-		long sharedBy = Long.parseLong(request.getSharedBy());
-		long sharedTo = Long.parseLong(request.getSharedTo());
+		//health records will be shared by individuals to the doctor.
+		long sharedBy = userId;
+		long sharedTo = Long.parseLong(request.getSharedToUserId());
 		
-		if (sharedBy != userId) {
-			throw new HandledException("NOT_SAME_USER", "Logged in user is not the one whose report is being shared.");
+		SharedUserRecordDTO surdto = sharedUserRecordDAO.getSharedUserRecord(sharedBy, sharedTo);
+		if (surdto == null) {
+			surdto = new SharedUserRecordDTO();
+			surdto.setSharedBy(userDAO.findOne(sharedBy));
+			surdto.setSharedTo(userDAO.findOne(sharedTo));
+			surdto = sharedUserRecordDAO.save(surdto);
 		}
 		
-		SharedUserRecordDTO surdto = new SharedUserRecordDTO();
-		surdto.setSharedBy(userDAO.findOne(sharedBy));
-		surdto.setSharedTo(userDAO.findOne(sharedTo));
-		surdto = sharedUserRecordDAO.save(surdto);
-		
 		for (String str: request.getHealthRecord()) {
-			SharedHealthRecordDTO shrdto = new SharedHealthRecordDTO();
+			SharedHealthRecordDTO shrdto = sharedHealthRecordDAO.findSharedHealthRecordByHealthRecordId(Long.parseLong(str));
+			if (shrdto != null) {
+				//health record is already shared, then skip
+				continue;
+			} else {
+				shrdto = new SharedHealthRecordDTO();
+			}
 			HealthRecordDTO hrdto = healthRecordDAO.findOne(Long.parseLong(str));
 			if (hrdto.getUser().getId() != sharedBy) {
 				throw new HandledException("NOT_SAME_USER", "Logged in user is not the one whose report is being shared.");
@@ -546,6 +579,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
+	@Transactional
 	public GetShareHealthRecordResponse getShareHealthRecord(String authToken, long shareHealthRecordId)
 			throws Exception {
 		long userId = authManager.getUserId(authToken);
@@ -559,39 +593,61 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		return ServiceUtils.setResponse(response, true, "Get shared record");
 	}
 	
-	private ShareRecordAttrs populateSharedRecord(SharedUserRecordDTO dto) {
+	private ShareRecordAttrs populateSharedRecord(SharedUserRecordDTO dto) throws Exception {
 		ShareRecordAttrs shr = new ShareRecordAttrs();
-		shr.setSharedBy(Long.toString(dto.getSharedBy().getId()));
-		shr.setSharedTo(Long.toString(dto.getSharedTo().getId()));
+		
+		UserDTO sharedByDTO = dto.getSharedBy();
+		FileStoreDTO profilePicFileStoreDTO = sharedByDTO.getProfileImageFileStore();
+		String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
+		
+		shr.setSharedByUserId(Long.toString(sharedByDTO.getId()));
+		shr.setSharedByFirstName(sharedByDTO.getFirstName());
+		shr.setSharedByLastName(sharedByDTO.getLastName());
+		shr.setSharedByGender(sharedByDTO.getGender());
+		shr.setSharedByProfilePic(profileImage);
+		
+		UserDTO sharedToDTO = dto.getSharedTo();
+		profilePicFileStoreDTO = sharedToDTO.getProfileImageFileStore();
+		profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
+		
+		shr.setSharedToUserId(Long.toString(sharedToDTO.getId()));
+		shr.setSharedToFirstName(sharedToDTO.getFirstName());
+		shr.setSharedToLastName(sharedToDTO.getLastName());
+		shr.setSharedToGender(sharedToDTO.getGender());
+		shr.setSharedToProfilePic(profileImage);
+		
 		List<SharedHealthRecordDTO> shrdtos = dto.getSharedhealthrecords();
 		List<String> hrs = Lists.newArrayList();
 		for (SharedHealthRecordDTO shrdto: shrdtos) {
 			hrs.add(Long.toString(shrdto.getHealthrecord().getId()));
 		}
+		
 		shr.getHealthRecord().addAll(hrs);
 		return shr;
 	}
 
 	@Override
+	@Transactional
 	public UpdateShareHealthRecordResponse updateShareHealthRecord(String authToken, UpdateShareHealthRecord request)
 			throws Exception {
 		
 		long userId = authManager.getUserId(authToken);
 		
-		long sharedBy = Long.parseLong(request.getSharedBy());
-		long sharedTo = Long.parseLong(request.getSharedTo());
-		
-		if (sharedBy != userId) {
-			throw new HandledException("NOT_SAME_USER", "Logged in user is not the one whose report is being shared.");
-		}
+		long sharedBy = userId;
+		long sharedTo = Long.parseLong(request.getSharedToUserId());
 		
 		SharedUserRecordDTO surdto = sharedUserRecordDAO.findOne(Long.parseLong(request.getSharedRecordId()));
 		if (surdto.getSharedBy().getId() != sharedBy) {
 			throw new HandledException("SHARED_BY_CANNOT_BE_CHANGED", "Shared by user cannot be changed.");
 		}
-		surdto.setSharedBy(userDAO.findOne(sharedBy));
-		surdto.setSharedTo(userDAO.findOne(sharedTo));
-		surdto = sharedUserRecordDAO.save(surdto);
+		
+		surdto = sharedUserRecordDAO.getSharedUserRecord(sharedBy, sharedTo);
+		if (surdto == null) {
+			surdto = new SharedUserRecordDTO();
+			surdto.setSharedBy(userDAO.findOne(sharedBy));
+			surdto.setSharedTo(userDAO.findOne(sharedTo));
+			surdto = sharedUserRecordDAO.save(surdto);
+		}
 		
 		for (String str: request.getHealthRecord()) {
 			SharedHealthRecordDTO shrdto = new SharedHealthRecordDTO();
@@ -609,34 +665,104 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	}
 
 	@Override
+	@Transactional
 	public ListShareHealthRecordResponse listShareHealthRecordByMe(String authToken) throws Exception {
+		//This function will be used by individual to see what all records are shared by him and to whom
 		long userId = authManager.getUserId(authToken);
 		
 		List<SharedUserRecordDTO> dtos = sharedUserRecordDAO.listRecordsSharedBy(userId);
 		List<ShareRecordAttrs> srs = Lists.newArrayList();
-
-		for (SharedUserRecordDTO dto: dtos) {
-			srs.add(populateSharedRecord(dto));
-		}
+		
+		//TODO: Improve the return structure, there should only one shared by in the returning pojo
+		if (!dtos.isEmpty()) {
+			UserDTO sharedByDTO = dtos.get(0).getSharedBy();
+			FileStoreDTO profilePicFileStoreDTO = sharedByDTO.getProfileImageFileStore();
+			String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
+			
+			for (SharedUserRecordDTO dto: dtos) {
+				ShareRecordAttrs shr = new ShareRecordAttrs();
+				shr.setSharedByFirstName(sharedByDTO.getFirstName());
+				shr.setSharedByLastName(sharedByDTO.getLastName());
+				shr.setSharedByProfilePic(profileImage);
+				shr.setSharedByGender(sharedByDTO.getGender());
+				srs.add(populateSharedByMeRecord(dto, shr));
+			}
+		}		
 		
 		ListShareHealthRecordResponse response = new ListShareHealthRecordResponse();
 		response.getShareRecordAttrs().addAll(srs);
 		return ServiceUtils.setResponse(response, true, "List record shared by me");
 	}
 	
+	private ShareRecordAttrs populateSharedByMeRecord(SharedUserRecordDTO dto, ShareRecordAttrs shr) throws Exception {
+		UserDTO sharedToDTO = dto.getSharedTo();
+		FileStoreDTO profilePicFileStoreDTO = sharedToDTO.getProfileImageFileStore();
+		String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
+		
+		shr.setSharedToUserId(Long.toString(sharedToDTO.getId()));
+		shr.setSharedToFirstName(sharedToDTO.getFirstName());
+		shr.setSharedToLastName(sharedToDTO.getLastName());
+		shr.setSharedToGender(sharedToDTO.getGender());
+		shr.setSharedToProfilePic(profileImage);
+		
+		List<SharedHealthRecordDTO> shrdtos = dto.getSharedhealthrecords();
+		List<String> hrs = Lists.newArrayList();
+		for (SharedHealthRecordDTO shrdto: shrdtos) {
+			hrs.add(Long.toString(shrdto.getHealthrecord().getId()));
+		}
+		
+		shr.getHealthRecord().addAll(hrs);
+		return shr;
+	}
+
 	@Override
+	@Transactional
 	public ListShareHealthRecordResponse listShareHealthRecordToMe(String authToken) throws Exception {
+		//This function will be used by doctor to see what all records are shared with him and by whom
 		long userId = authManager.getUserId(authToken);
 		
 		List<SharedUserRecordDTO> dtos = sharedUserRecordDAO.listRecordsSharedTo(userId);
 		List<ShareRecordAttrs> srs = Lists.newArrayList();
 
-		for (SharedUserRecordDTO dto: dtos) {
-			srs.add(populateSharedRecord(dto));
+		//TODO: Improve the return structure, there should only one shared to in the returning pojo
+		if (!dtos.isEmpty()) {
+			UserDTO sharedToDTO = dtos.get(0).getSharedTo();
+			FileStoreDTO profilePicFileStoreDTO = sharedToDTO.getProfileImageFileStore();
+			String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
+			
+			for (SharedUserRecordDTO dto: dtos) {
+				ShareRecordAttrs shr = new ShareRecordAttrs();
+				shr.setSharedToFirstName(sharedToDTO.getFirstName());
+				shr.setSharedToLastName(sharedToDTO.getLastName());
+				shr.setSharedToGender(sharedToDTO.getGender());
+				shr.setSharedToProfilePic(profileImage);
+				srs.add(populateSharedToMeRecord(dto, shr));
+			}
 		}
 		
 		ListShareHealthRecordResponse response = new ListShareHealthRecordResponse();
 		response.getShareRecordAttrs().addAll(srs);
 		return ServiceUtils.setResponse(response, true, "List record shared to me");
+	}
+	
+	private ShareRecordAttrs populateSharedToMeRecord(SharedUserRecordDTO dto, ShareRecordAttrs shr) throws Exception {
+		UserDTO sharedByDTO = dto.getSharedBy();
+		FileStoreDTO profilePicFileStoreDTO = sharedByDTO.getProfileImageFileStore();
+		String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
+		
+		shr.setSharedByUserId(Long.toString(sharedByDTO.getId()));
+		shr.setSharedByFirstName(sharedByDTO.getFirstName());
+		shr.setSharedByLastName(sharedByDTO.getLastName());
+		shr.setSharedByGender(sharedByDTO.getGender());
+		shr.setSharedByProfilePic(profileImage);
+		
+		List<SharedHealthRecordDTO> shrdtos = dto.getSharedhealthrecords();
+		List<String> hrs = Lists.newArrayList();
+		for (SharedHealthRecordDTO shrdto: shrdtos) {
+			hrs.add(Long.toString(shrdto.getHealthrecord().getId()));
+		}
+		
+		shr.getHealthRecord().addAll(hrs);
+		return shr;
 	}
 }

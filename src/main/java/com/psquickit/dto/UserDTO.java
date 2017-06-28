@@ -52,7 +52,11 @@ public class UserDTO implements Serializable {
 	private Timestamp updatedOn;
 
 	private String userType;
-
+	
+	private String dateOfBirth;
+	
+	private String gender;
+	
 	//bi-directional many-to-one association to DoctorUserDTO
 	@OneToMany(mappedBy="user")
 	private List<DoctorUserDTO> doctorusers;
@@ -293,6 +297,22 @@ public class UserDTO implements Serializable {
 
 	public void setProfileImageFileStore(FileStoreDTO profileImageFileStore) {
 		this.profileImageFileStore = profileImageFileStore;
+	}
+
+	public String getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(String dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
 	}
 
 }

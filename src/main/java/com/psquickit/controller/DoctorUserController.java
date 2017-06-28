@@ -16,9 +16,11 @@ import com.psquickit.pojo.user.DoctorUserRegisterRequest;
 import com.psquickit.pojo.user.DoctorUserRegisterResponse;
 import com.psquickit.pojo.user.DoctorUserUpdateRequest;
 import com.psquickit.pojo.user.DoctorUserUpdateResponse;
+import com.psquickit.pojo.user.DoctorUsersResponse;
 import com.psquickit.pojo.user.ListAllDegreeResponse;
 import com.psquickit.pojo.user.ListAllMciResponse;
 import com.psquickit.pojo.user.ListAllSpecializationResponse;
+import com.psquickit.pojo.user.SearchUserRequest;
 import com.psquickit.util.ServiceUtils;
 
 @RestController
@@ -129,4 +131,17 @@ public class DoctorUserController {
 		}
 		return response;
 	}
+	
+	@RequestMapping(value = "/search", method = RequestMethod.POST)
+	public @ResponseBody DoctorUsersResponse doctorList(@RequestHeader(value="authToken", required=true) String authToken,
+			@RequestBody SearchUserRequest request) {
+		DoctorUsersResponse response = new DoctorUsersResponse();
+		try {
+			response = manager.searchDoctor(authToken, request);
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "Search Doctor User List", e);
+		}
+		return response;
+	}
+	
 }

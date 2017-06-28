@@ -12,7 +12,7 @@ import com.psquickit.dto.UserTestNameValueReportDTO;
 @Repository
 public interface UserTestNameValueReportDAO extends JpaRepository<UserTestNameValueReportDTO, Long> {
 
-	@Query("Select u from UserTestNameValueReportDTO u where u.healthrecord.id = :healthrecordid and u.healthrecord.user.id = :userid")
-	List<UserTestNameValueReportDTO> listUserTestNameValueReportByHealthRecordIdAndUserId(@Param("healthrecordid") Long healthRecordId, @Param("userid") Long userId);
+	@Query("Select u from UserTestNameValueReportDTO u where u.healthrecord.id = :healthrecordid")
+	List<UserTestNameValueReportDTO> listUserTestNameValueReportByHealthRecordId(@Param("healthrecordid") Long healthRecordId);
 
 }

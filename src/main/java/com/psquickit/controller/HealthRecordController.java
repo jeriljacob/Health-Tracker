@@ -157,7 +157,7 @@ public class HealthRecordController {
 	public @ResponseBody GetTestNameValueReportResponse addTestNameValue(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
-			@RequestParam(value="healthRecordDate", required=false) Date healthRecordDate,
+			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd'T'hh:mm:ssZ") Date healthRecordDate, //2001-10-26T21:32:52+02:00
 			@RequestParam(value="testname", required=true) String testName,
 			@RequestPart(value="testreport", required=true) MultipartFile[] testReports
 			) {
@@ -187,7 +187,7 @@ public class HealthRecordController {
 	public @ResponseBody UploadPrescriptionResponse uploadPrescription(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
-			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(pattern="MMddyyyy") Date healthRecordDate,
+			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd'T'hh:mm:ssZ") Date healthRecordDate,//2001-10-26T21:32:52+02:00
 			@RequestPart(value = "prescription", required=true) MultipartFile[] prescriptions
 			) {
 		UploadPrescriptionResponse response = new UploadPrescriptionResponse();
@@ -203,7 +203,7 @@ public class HealthRecordController {
 	public @ResponseBody UploadDiagnosisResponse uploadDiagnosis(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
-			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(pattern="MMddyyyy") Date healthRecordDate,
+			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd'T'hh:mm:ssZ") Date healthRecordDate,//2001-10-26T21:32:52+02:00
 			@RequestParam(value="diagnosisName", required=true) String diagnosisName,
 			@RequestPart(value = "diagnosis", required=true) MultipartFile[] diagnosises
 			) {

@@ -1,5 +1,6 @@
 package com.psquickit.manager;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -37,15 +38,15 @@ public interface HealthRecordManager {
 	DeleteTestResponse deleteTest(String authToken, List<Long> ids) throws Exception;
 
 	GetTestNameValueReportResponse addTestNameReport(String authToken, String healthRecordId,
-			Date healthRecordDate, String testName, MultipartFile[] testReports) throws Exception;
+			ZonedDateTime healthRecordDate, String testName, MultipartFile[] testReports) throws Exception;
 
 	void getTestNameReport(String authToken, long testReportFileId, HttpServletResponse httpResponse) throws Exception;
 
 	UploadPrescriptionResponse uploadPrescription(String authToken, String healthRecordId,
-			Date healthRecordDate, MultipartFile[] prescriptions) throws Exception;
+			ZonedDateTime healthRecordDate, MultipartFile[] prescriptions) throws Exception;
 
 	UploadDiagnosisResponse uploadDiagnosis(String authToken, String healthRecordId,
-			Date healthRecordDate, String diagnosisName, MultipartFile[] diagnosises) throws Exception;
+			ZonedDateTime healthRecordDate, String diagnosisName, MultipartFile[] diagnosises) throws Exception;
 
 	void getPrescription(String authToken, long prescriptionFileId, HttpServletResponse httpResponse) throws Exception;
 

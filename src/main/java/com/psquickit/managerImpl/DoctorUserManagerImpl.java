@@ -364,7 +364,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 		doctorUserDTO.setClinicAlternateContactNumber(request.getAlternateContactNo());
 		doctorUserDTO.setInPersonConsultant(request.getInPersonConsultant());
 		doctorUserDTO.setEConsultant(request.getEConsultant());
-		doctorUserDTO.setCentralMciRegistrationNumber(request.getCentralMCIRegistrationNumber());
+		doctorUserDTO.setCentralMCIRegistrationNumber(request.getCentralMCIRegistrationNumber());
 		return doctorUserDTO;
 	}
 	
@@ -390,7 +390,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 			details.setInPersonConsultant(doctorUserDTO.getInPersonConsultant());
 			details.setEConsultant(doctorUserDTO.getEConsultant());
 			details.setClinicContactNo(doctorUserDTO.getClinicContactNumber());
-			details.setCentralMCIRegistrationNumber(doctorUserDTO.getCentralMciRegistrationNumber());
+			details.setCentralMCIRegistrationNumber(doctorUserDTO.getCentralMCIRegistrationNumber());
 			details.getDegrees().addAll(toDoctorDegree(doctorDegreeDTOs));
 			details.getSpecialization().addAll(toDoctorSpecialization(doctorSpecializationDTOs));
 			details.getMciReg().addAll(toDoctorMci(doctorMciDTOs));

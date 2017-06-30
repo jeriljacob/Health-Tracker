@@ -3,7 +3,7 @@ package com.psquickit.managerImpl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Timestamp;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -346,14 +346,14 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional(rollbackOn=Exception.class)
 	public GetTestNameValueReportResponse addTestNameReport(String authToken, String healthRecordId,
-			Date healthRecordDate, String testName, MultipartFile[] testReports) throws Exception {
+			ZonedDateTime healthRecordDate, String testName, MultipartFile[] testReports) throws Exception {
 		
 		long userId = authManager.getUserId(authToken);
 		HealthRecordDTO hdto = null;
 		if (healthRecordId == null) {
 			hdto = new HealthRecordDTO();
 			hdto.setUser(userDAO.getOne(userId));
-			hdto.setRecordDate(new Timestamp(healthRecordDate.getTime()));
+			hdto.setRecordDate(new Timestamp(healthRecordDate.toEpochSecond()));
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);
 		}
@@ -388,13 +388,13 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional(rollbackOn=Exception.class)
 	public UploadPrescriptionResponse uploadPrescription(String authToken, String healthRecordId,
-			Date healthRecordDate, MultipartFile[] prescriptions) throws Exception {
+			ZonedDateTime healthRecordDate, MultipartFile[] prescriptions) throws Exception {
 		long userId = authManager.getUserId(authToken);
 		HealthRecordDTO hdto = null;
 		if (healthRecordId == null) {
 			hdto = new HealthRecordDTO();
 			hdto.setUser(userDAO.getOne(userId));
-			hdto.setRecordDate(new Timestamp(healthRecordDate.getTime()));
+			hdto.setRecordDate(new Timestamp(healthRecordDate.toEpochSecond()));
 			hdto = healthRecordDAO.save(hdto);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);
@@ -422,13 +422,13 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional(rollbackOn=Exception.class)
 	public UploadDiagnosisResponse uploadDiagnosis(String authToken, String healthRecordId,
-			Date healthRecordDate, String diagnosisName, MultipartFile[] diagnosises) throws Exception {
+			ZonedDateTime healthRecordDate, String diagnosisName, MultipartFile[] diagnosises) throws Exception {
 		long userId = authManager.getUserId(authToken);
 		HealthRecordDTO hdto = null;
 		if (healthRecordId == null) {
 			hdto = new HealthRecordDTO();
 			hdto.setUser(userDAO.getOne(userId));
-			hdto.setRecordDate(new Timestamp(healthRecordDate.getTime()));
+			hdto.setRecordDate(new Timestamp(healthRecordDate.toEpochSecond()));
 			hdto = healthRecordDAO.save(hdto);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);

@@ -43,7 +43,7 @@ public class DoctorUserDTO implements Serializable {
 
 	private String inPersonConsultant;
 	
-	private String centralMciRegistrationNumber;
+	private String centralMCIRegistrationNumber;
 
 	private Long updatedBy;
 	
@@ -254,12 +254,12 @@ public class DoctorUserDTO implements Serializable {
 		this.user = user;
 	}
 
-	public String getCentralMciRegistrationNumber() {
-		return centralMciRegistrationNumber;
+	public String getCentralMCIRegistrationNumber() {
+		return centralMCIRegistrationNumber;
 	}
 
-	public void setCentralMciRegistrationNumber(String centralMciRegistrationNumber) {
-		this.centralMciRegistrationNumber = centralMciRegistrationNumber;
+	public void setCentralMCIRegistrationNumber(String centralMCIRegistrationNumber) {
+		this.centralMCIRegistrationNumber = centralMCIRegistrationNumber;
 	}
 
 }

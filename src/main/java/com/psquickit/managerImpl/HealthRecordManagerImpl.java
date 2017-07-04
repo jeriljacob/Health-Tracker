@@ -238,11 +238,13 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	private void validateHealthRecordAccess(HealthRecordDTO hdto, long userId) throws Exception {
 		if (hdto.getUser().getId() != userId) {
 			//check if this health record was shared with this user id
-			SharedHealthRecordDTO shrdto = sharedHealthRecordDAO.findSharedHealthRecordByHealthRecordId(hdto.getId());
-			if (shrdto != null && (shrdto.getShareduserrecord().getSharedTo().getId() == userId)) {
-				//implies user has shared this record
-				return;
-			}
+			List<SharedHealthRecordDTO> shrdtos = sharedHealthRecordDAO.listSharedHealthRecordByHealthRecordId(hdto.getId());
+			for (SharedHealthRecordDTO shrdto: shrdtos) {
+				if (shrdto != null && (shrdto.getShareduserrecord().getSharedTo().getId() == userId)) {
+					//implies user has shared this record
+					return;
+				}
+			}			
 			throw new HandledException("NOT_SAME_USER", "User " + userId + " cannot access the health record.");
 		}
 	}
@@ -354,6 +356,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			hdto = new HealthRecordDTO();
 			hdto.setUser(userDAO.getOne(userId));
 			hdto.setRecordDate(new Timestamp(healthRecordDate.toEpochSecond()));
+			hdto = healthRecordDAO.save(hdto);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);
 		}
@@ -556,14 +559,16 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			surdto = sharedUserRecordDAO.save(surdto);
 		}
 		
-		for (String str: request.getHealthRecord()) {
-			SharedHealthRecordDTO shrdto = sharedHealthRecordDAO.findSharedHealthRecordByHealthRecordId(Long.parseLong(str));
-			if (shrdto != null) {
-				//health record is already shared, then skip
-				continue;
-			} else {
-				shrdto = new SharedHealthRecordDTO();
+		for (String str: request.getHealthRecordId()) {
+			List<SharedHealthRecordDTO> shrdtos = sharedHealthRecordDAO.listSharedHealthRecordByHealthRecordId(Long.parseLong(str));
+			SharedHealthRecordDTO shrdto;
+			for (SharedHealthRecordDTO s: shrdtos) {
+				if (s.getShareduserrecord().getSharedTo().getId() == sharedTo) {
+					throw new HandledException("RECORD_ALREADY_SHARED", "Record is already shared to the Doctor.");
+				}
 			}
+			shrdto = new SharedHealthRecordDTO();
+			
 			HealthRecordDTO hrdto = healthRecordDAO.findOne(Long.parseLong(str));
 			if (hrdto.getUser().getId() != sharedBy) {
 				throw new HandledException("NOT_SAME_USER", "Logged in user is not the one whose report is being shared.");
@@ -585,7 +590,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		long userId = authManager.getUserId(authToken);
 		
 		SharedUserRecordDTO dto = sharedUserRecordDAO.findOne(shareHealthRecordId);
-		if (dto.getSharedBy().getId() != userId || dto.getSharedTo().getId() != userId) {
+		if (dto.getSharedBy().getId() != userId && dto.getSharedTo().getId() != userId) {
 			throw new HandledException("INVALID_USER_ACCESS", "This user does not have access to this record");
 		}
 		GetShareHealthRecordResponse response = new GetShareHealthRecordResponse();
@@ -622,7 +627,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			hrs.add(Long.toString(shrdto.getHealthrecord().getId()));
 		}
 		
-		shr.getHealthRecord().addAll(hrs);
+		shr.getHealthRecordId().addAll(hrs);
 		return shr;
 	}
 
@@ -649,7 +654,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			surdto = sharedUserRecordDAO.save(surdto);
 		}
 		
-		for (String str: request.getHealthRecord()) {
+		for (String str: request.getHealthRecordId()) {
 			SharedHealthRecordDTO shrdto = new SharedHealthRecordDTO();
 			HealthRecordDTO hrdto = healthRecordDAO.findOne(Long.parseLong(str));
 			if (hrdto.getUser().getId() != sharedBy) {
@@ -711,7 +716,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			hrs.add(Long.toString(shrdto.getHealthrecord().getId()));
 		}
 		
-		shr.getHealthRecord().addAll(hrs);
+		shr.getHealthRecordId().addAll(hrs);
 		return shr;
 	}
 
@@ -762,7 +767,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			hrs.add(Long.toString(shrdto.getHealthrecord().getId()));
 		}
 		
-		shr.getHealthRecord().addAll(hrs);
+		shr.getHealthRecordId().addAll(hrs);
 		return shr;
 	}
 }

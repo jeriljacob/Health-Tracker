@@ -221,7 +221,7 @@
 	<xs:element name="updateShareHealthRecord">
 		<xs:complexType>
 			<xs:complexContent>
-				<xs:extension base="tns:shareRecordAttrs"/>	
+				<xs:extension base="tns:shareRecordUpdtAttrs"/>	
 			</xs:complexContent>
 		</xs:complexType>
 	</xs:element>	
@@ -260,8 +260,18 @@
 	<xs:complexType name="shareRecordMinAttrs">
 		<xs:sequence>
 			<xs:element name="sharedToUserId" type="xs:string" />
-			<xs:element name="healthRecord" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="healthRecordId" type="xs:string" maxOccurs="unbounded"/>
 		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="shareRecordUpdtAttrs">
+		<xs:complexContent>
+			<xs:extension base="tns:shareRecordMinAttrs">
+				<xs:sequence>		
+					<xs:element name="sharedRecordId" type="xs:string"/>
+				</xs:sequence>					
+			</xs:extension>		
+		</xs:complexContent>
 	</xs:complexType>
 	
 	<xs:complexType name="shareRecordAttrs">
@@ -278,7 +288,6 @@
 					<xs:element name="sharedToLastName" type="xs:string" />
 					<xs:element name="sharedToGender" type="xs:string" />
 					<xs:element name="sharedToProfilePic" type="xs:string" />
-										
 				</xs:sequence>					
 			</xs:extension>		
 		</xs:complexContent>

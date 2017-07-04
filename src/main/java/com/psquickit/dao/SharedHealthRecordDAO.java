@@ -14,9 +14,9 @@ import com.psquickit.dto.SharedHealthRecordDTO;
 public interface SharedHealthRecordDAO extends JpaRepository<SharedHealthRecordDTO, Long> {
 
 	@Query("Select s from SharedHealthRecordDTO s where s.healthrecord.id = :healthRecordId")
-	SharedHealthRecordDTO findSharedHealthRecordByHealthRecordId(@Param("healthRecordId") long healthRecordId);
+	List<SharedHealthRecordDTO> listSharedHealthRecordByHealthRecordId(@Param("healthRecordId") long healthRecordId);
 
-	@Query("Select s from SharedHealthRecordDTO s where s.healthrecord.id in (:healthRecordIdsShared) and s.shareduserrecord.sharedTo.id = :sharedToUserId")
+	@Query("Select s.healthrecord from SharedHealthRecordDTO s where s.healthrecord.id in (:healthRecordIdsShared) and s.shareduserrecord.sharedTo.id = :sharedToUserId")
 	List<HealthRecordDTO> listSharedHealthRecordsIn(@Param("healthRecordIdsShared") List<Long> healthRecordIdsShared, @Param("sharedToUserId") long sharedToUserId);
 
 }

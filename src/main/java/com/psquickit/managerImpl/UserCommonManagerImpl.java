@@ -31,6 +31,8 @@ public class UserCommonManagerImpl {
 		userDTO.setEmail(userDetails.getEmail());
 		userDTO.setUserType(UserType.fromName(userDetails.getUserType()).getName());
 		userDTO.setProfileImageFileStore(profilePicFileStoreDTO);
+		userDTO.setDateOfBirth(userDetails.getDateOfBirth());
+		userDTO.setGender(userDetails.getGender());
 		return userDTO;
 	}
 
@@ -45,6 +47,8 @@ public class UserCommonManagerImpl {
 		details.setEmail(userDTO.getEmail());
 		details.setUserType(UserType.fromName(userDTO.getUserType()).getName());
 		details.setProfileImg(profileImage);
+		details.setDateOfBirth(userDTO.getDateOfBirth());
+		details.setGender(userDTO.getGender());
 		return details;
 	}
 	

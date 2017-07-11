@@ -348,15 +348,12 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional(rollbackOn=Exception.class)
 	public GetTestNameValueReportResponse addTestNameReport(String authToken, String healthRecordId,
-			ZonedDateTime healthRecordDate, String testName, MultipartFile[] testReports) throws Exception {
+			ZonedDateTime healthRecordDate, String forUserId, String testName, MultipartFile[] testReports) throws Exception {
 		
 		long userId = authManager.getUserId(authToken);
 		HealthRecordDTO hdto = null;
 		if (healthRecordId == null) {
-			hdto = new HealthRecordDTO();
-			hdto.setUser(userDAO.getOne(userId));
-			hdto.setRecordDate(new Timestamp(healthRecordDate.toEpochSecond()));
-			hdto = healthRecordDAO.save(hdto);
+			hdto = generateHealthRecordDTO(healthRecordDate, userId, forUserId);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);
 		}
@@ -380,6 +377,32 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		return ServiceUtils.setResponse(response, true, "Add a test report");
 	}
 
+	private HealthRecordDTO generateHealthRecordDTO(ZonedDateTime healthRecordDate, long userId, String forUserIdStr) throws HandledException {
+		HealthRecordDTO hdto = new HealthRecordDTO();
+		if (forUserIdStr != null) {
+			//this means someone else (probably a HSP) is adding a new health record on behalf of the individual
+			//in this case, we need to check if the individual has ever shared anything with the HSP. If yes,
+			//then continue, else, don't
+			long forUserId = Long.parseLong(forUserIdStr);
+			SharedUserRecordDTO surdto = sharedUserRecordDAO.getSharedUserRecord(forUserId, userId);
+			boolean hasAccess = false;
+			if (surdto != null) {
+				if (!surdto.getSharedhealthrecords().isEmpty()) {
+					hasAccess = true;
+				}
+			} 
+			if (!hasAccess) {
+				throw new HandledException("INVALID_ACCESS", "No health records are shared by the user [" + forUserIdStr + "] to user [" + userId + "]. Cannot proceed with the operation of creating new health record");
+			}
+		}
+		hdto.setUser(userDAO.getOne(userId));
+		hdto.setRecordDate(new Timestamp(healthRecordDate.toInstant().toEpochMilli()));
+		hdto = healthRecordDAO.save(hdto);
+		return hdto;
+	}
+	
+	
+
 	@Override
 	public void getTestNameReport(String authToken, long testReportFileId, HttpServletResponse httpResponse) throws Exception {
 		long userId = authManager.getUserId(authToken);
@@ -391,14 +414,11 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	@Override
 	@Transactional(rollbackOn=Exception.class)
 	public UploadPrescriptionResponse uploadPrescription(String authToken, String healthRecordId,
-			ZonedDateTime healthRecordDate, MultipartFile[] prescriptions) throws Exception {
+			ZonedDateTime healthRecordDate, String forUserId, MultipartFile[] prescriptions) throws Exception {
 		long userId = authManager.getUserId(authToken);
 		HealthRecordDTO hdto = null;
 		if (healthRecordId == null) {
-			hdto = new HealthRecordDTO();
-			hdto.setUser(userDAO.getOne(userId));
-			hdto.setRecordDate(new Timestamp(healthRecordDate.toEpochSecond()));
-			hdto = healthRecordDAO.save(hdto);
+			hdto = generateHealthRecordDTO(healthRecordDate, userId, forUserId);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);
 		}
@@ -421,18 +441,15 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		response.setPrescriptionId(updto.getId().toString());
 		return ServiceUtils.setResponse(response, true, "Upload prescription");
 	}
-
+	
 	@Override
 	@Transactional(rollbackOn=Exception.class)
 	public UploadDiagnosisResponse uploadDiagnosis(String authToken, String healthRecordId,
-			ZonedDateTime healthRecordDate, String diagnosisName, MultipartFile[] diagnosises) throws Exception {
+			ZonedDateTime healthRecordDate, String forUserId, String diagnosisName, MultipartFile[] diagnosises) throws Exception {
 		long userId = authManager.getUserId(authToken);
 		HealthRecordDTO hdto = null;
 		if (healthRecordId == null) {
-			hdto = new HealthRecordDTO();
-			hdto.setUser(userDAO.getOne(userId));
-			hdto.setRecordDate(new Timestamp(healthRecordDate.toEpochSecond()));
-			hdto = healthRecordDAO.save(hdto);
+			hdto = generateHealthRecordDTO(healthRecordDate, userId, forUserId);
 		} else {
 			hdto = getHealthRecordDTO(Long.parseLong(healthRecordId), userId);
 		}
@@ -562,11 +579,15 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		for (String str: request.getHealthRecordId()) {
 			List<SharedHealthRecordDTO> shrdtos = sharedHealthRecordDAO.listSharedHealthRecordByHealthRecordId(Long.parseLong(str));
 			SharedHealthRecordDTO shrdto;
+			boolean alreadyShared = false;
 			for (SharedHealthRecordDTO s: shrdtos) {
 				if (s.getShareduserrecord().getSharedTo().getId() == sharedTo) {
-					throw new HandledException("RECORD_ALREADY_SHARED", "Record is already shared to the Doctor.");
+					alreadyShared = true;
+					break;
 				}
 			}
+			if (alreadyShared) continue;
+			
 			shrdto = new SharedHealthRecordDTO();
 			
 			HealthRecordDTO hrdto = healthRecordDAO.findOne(Long.parseLong(str));
@@ -770,4 +791,5 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		shr.getHealthRecordId().addAll(hrs);
 		return shr;
 	}
+
 }

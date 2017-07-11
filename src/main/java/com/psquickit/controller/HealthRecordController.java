@@ -157,13 +157,14 @@ public class HealthRecordController {
 	public @ResponseBody GetTestNameValueReportResponse addTestNameValue(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
-			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) ZonedDateTime healthRecordDate, //2001-10-26T21:32:52+02:00
+			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) ZonedDateTime healthRecordDate, 
+			@RequestParam(value="forUserId", required=false) String forUserId,
 			@RequestParam(value="testname", required=true) String testName,
 			@RequestPart(value="testreport", required=true) MultipartFile[] testReports
 			) {
 		GetTestNameValueReportResponse response = new GetTestNameValueReportResponse();
 		try {
-			response = manager.addTestNameReport(authToken, healthRecordId, healthRecordDate, testName, testReports);
+			response = manager.addTestNameReport(authToken, healthRecordId, healthRecordDate, forUserId, testName, testReports);
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "Add test report", e);
 		}
@@ -187,12 +188,13 @@ public class HealthRecordController {
 	public @ResponseBody UploadPrescriptionResponse uploadPrescription(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
-			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) ZonedDateTime healthRecordDate,//2001-10-26T21:32:52+02:00
+			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) ZonedDateTime healthRecordDate,
+			@RequestParam(value="forUserId", required=false) String forUserId,
 			@RequestPart(value = "prescription", required=true) MultipartFile[] prescriptions
 			) {
 		UploadPrescriptionResponse response = new UploadPrescriptionResponse();
 		try {
-			response = manager.uploadPrescription(authToken, healthRecordId, healthRecordDate, prescriptions);
+			response = manager.uploadPrescription(authToken, healthRecordId, healthRecordDate, forUserId, prescriptions);
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "Upload prescription", e);
 		}
@@ -203,13 +205,14 @@ public class HealthRecordController {
 	public @ResponseBody UploadDiagnosisResponse uploadDiagnosis(
 			@RequestHeader(value="authToken", required=true) String authToken,
 			@RequestParam(value="healthRecordId", required=false) String healthRecordId,
-			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) ZonedDateTime healthRecordDate,//2001-10-26T21:32:52+02:00
+			@RequestParam(value="healthRecordDate", required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME) ZonedDateTime healthRecordDate,
+			@RequestParam(value="forUserId", required=false) String forUserId,
 			@RequestParam(value="diagnosisName", required=true) String diagnosisName,
 			@RequestPart(value = "diagnosis", required=true) MultipartFile[] diagnosises
 			) {
 		UploadDiagnosisResponse response = new UploadDiagnosisResponse();
 		try {
-			response = manager.uploadDiagnosis(authToken, healthRecordId, healthRecordDate, diagnosisName, diagnosises);
+			response = manager.uploadDiagnosis(authToken, healthRecordId, healthRecordDate, forUserId, diagnosisName, diagnosises);
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "Upload diagnosis", e);
 		}

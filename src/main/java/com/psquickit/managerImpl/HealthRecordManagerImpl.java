@@ -394,8 +394,10 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			if (!hasAccess) {
 				throw new HandledException("INVALID_ACCESS", "No health records are shared by the user [" + forUserIdStr + "] to user [" + userId + "]. Cannot proceed with the operation of creating new health record");
 			}
+			hdto.setUser(userDAO.getOne(forUserId));
+		} else {
+			hdto.setUser(userDAO.getOne(userId));
 		}
-		hdto.setUser(userDAO.getOne(userId));
 		hdto.setRecordDate(new Timestamp(healthRecordDate.toInstant().toEpochMilli()));
 		hdto = healthRecordDAO.save(hdto);
 		return hdto;

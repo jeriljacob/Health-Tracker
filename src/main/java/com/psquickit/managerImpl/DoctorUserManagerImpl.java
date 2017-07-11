@@ -456,21 +456,26 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 	@Transactional
 	public DoctorUsersResponse searchDoctor(String authToken, SearchUserRequest request) throws Exception {
 		long userId = authManager.getUserId(authToken);
-		List<UserDTO> dtos = userDAO.searchUserByFirstName(request.getFirstName());
+		List<DoctorUserDTO> dtos = doctorUserDAO.searchDoctorUserByFirstName(request.getFirstName());
 		List<DoctorUserAttrs> list = new ArrayList<>();
 		DoctorUsersResponse response = new DoctorUsersResponse();
-		for(UserDTO dto : dtos) {
-			if(UserType.fromName(dto.getUserType()) == UserType.DOCTOR_USER){
-				DoctorUserAttrs attr = new DoctorUserAttrs();
-				FileStoreDTO profilePicFileStoreDTO = dto.getProfileImageFileStore();
-				String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
-				attr.setProfileImage(profileImage);
-				attr.setFirstName(dto.getFirstName());
-				attr.setLastName(dto.getLastName());
-				attr.setUserId(Long.toString(dto.getId()));
-				attr.setGender(dto.getGender());
-				list.add(attr);
-			}
+		for (DoctorUserDTO dto : dtos) {
+			DoctorUserAttrs attr = new DoctorUserAttrs();
+			FileStoreDTO profilePicFileStoreDTO = dto.getUser().getProfileImageFileStore();
+			String profileImage = fileStoreManager.retrieveFile(profilePicFileStoreDTO).asCharSource(Charsets.UTF_8).read();
+			attr.setProfileImage(profileImage);
+			attr.setFirstName(dto.getUser().getFirstName());
+			attr.setLastName(dto.getUser().getLastName());
+			attr.setUserId(Long.toString(dto.getId()));
+			attr.setGender(dto.getUser().getGender());
+			
+			List<DoctorDegreeDTO> degreeDtos = dto.getDoctordegrees();
+			List<DoctorSpecializationDTO> dsdtos = dto.getDoctorspecializations();
+			attr.getDegrees().addAll(toDoctorDegree(degreeDtos));
+			attr.getSpecialization().addAll(toDoctorSpecialization(dsdtos));
+			List<DoctorClinicAddressDTO> dcdtos = dto.getDoctorclinicaddresses();
+			attr.getClinicAddress().addAll(toDoctorClinicAddress(dcdtos));
+			list.add(attr);
 		}
 		response.getDoctorUsers().addAll(list);
 		return ServiceUtils.setResponse(response, true, "Doctor List");

@@ -15,6 +15,6 @@ public interface UserDAO extends JpaRepository<UserDTO, Long> {
 	@Query("Select u from UserDTO u where u.aadhaarNumber = :aadhaarNumber")
 	public UserDTO checkAadhaarNumberExist(@Param("aadhaarNumber") String aadhaarNumber);
 	
-	@Query("select u from UserDTO u where u.firstName like CONCAT(:firstName,'%')")
+	@Query("select u from UserDTO u where u.firstName like CONCAT('%',:firstName,'%')")
 	public List<UserDTO> searchUserByFirstName(@Param("firstName") String searchText);
 }

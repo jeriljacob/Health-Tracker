@@ -379,12 +379,14 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 
 	private HealthRecordDTO generateHealthRecordDTO(ZonedDateTime healthRecordDate, long userId, String forUserIdStr) throws HandledException {
 		HealthRecordDTO hdto = new HealthRecordDTO();
+		
+		SharedUserRecordDTO surdto = null;
 		if (forUserIdStr != null) {
 			//this means someone else (probably a HSP) is adding a new health record on behalf of the individual
 			//in this case, we need to check if the individual has ever shared anything with the HSP. If yes,
 			//then continue, else, don't
 			long forUserId = Long.parseLong(forUserIdStr);
-			SharedUserRecordDTO surdto = sharedUserRecordDAO.getSharedUserRecord(forUserId, userId);
+			surdto = sharedUserRecordDAO.getSharedUserRecord(forUserId, userId);
 			boolean hasAccess = false;
 			if (surdto != null) {
 				if (!surdto.getSharedhealthrecords().isEmpty()) {
@@ -400,6 +402,15 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		}
 		hdto.setRecordDate(new Timestamp(healthRecordDate.toInstant().toEpochMilli()));
 		hdto = healthRecordDAO.save(hdto);
+		
+		if (forUserIdStr != null && surdto != null) {
+			//if the HSP is adding the health record, then the health record should
+			//by default be shared with HSP
+			SharedHealthRecordDTO shrdto = new SharedHealthRecordDTO();
+			shrdto.setHealthrecord(hdto);
+			shrdto.setShareduserrecord(surdto);
+			shrdto = sharedHealthRecordDAO.save(shrdto);
+		}
 		return hdto;
 	}
 	

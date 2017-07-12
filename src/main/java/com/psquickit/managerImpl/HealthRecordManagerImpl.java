@@ -306,6 +306,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 			TestNameValueReport test = new TestNameValueReport();
 			test.setId(Long.toString(tdto.getId()));
 			test.setTestName(tdto.getTestName());
+			test.setTestValue(tdto.getTestValue());
 			test.setTestRange(tdto.getTestValuesRange());
 			test.setTestUnit(tdto.getUnit());
 			
@@ -325,6 +326,7 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 				TestNameValueById subtest = new TestNameValueById();
 				subtest.setId(Long.toString(stdto.getId()));
 				subtest.setTestName(stdto.getTestName());
+				subtest.setTestValue(stdto.getTestValue());
 				subtest.setTestRange(stdto.getTestValuesRange());
 				subtest.setTestUnit(stdto.getUnit());
 				subtests.add(subtest);

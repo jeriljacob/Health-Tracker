@@ -466,7 +466,7 @@ public class DoctorUserManagerImpl implements DoctorUserManager {
 			attr.setProfileImage(profileImage);
 			attr.setFirstName(dto.getUser().getFirstName());
 			attr.setLastName(dto.getUser().getLastName());
-			attr.setUserId(Long.toString(dto.getId()));
+			attr.setUserId(Long.toString(dto.getUser().getId()));
 			attr.setGender(dto.getUser().getGender());
 			
 			List<DoctorDegreeDTO> degreeDtos = dto.getDoctordegrees();

@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.Lists;
 import com.psquickit.manager.HealthRecordManager;
+import com.psquickit.pojo.health.record.AddPrescriptionNameValue;
 import com.psquickit.pojo.health.record.AddShareHealthRecord;
 import com.psquickit.pojo.health.record.AddShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.AddTestNameValue;
@@ -28,6 +29,7 @@ import com.psquickit.pojo.health.record.DeleteDiagnosisResponse;
 import com.psquickit.pojo.health.record.DeletePrescriptionResponse;
 import com.psquickit.pojo.health.record.DeleteTestResponse;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
+import com.psquickit.pojo.health.record.GetPrescriptionNameValueResponse;
 import com.psquickit.pojo.health.record.GetShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
 import com.psquickit.pojo.health.record.ListHealthRecordResponse;
@@ -355,6 +357,20 @@ public class HealthRecordController {
 			response = manager.listShareHealthRecordToMe(authToken);
 		} catch (Exception e) {
 			return ServiceUtils.setResponse(response, false, "List share health record to me", e);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/add/prescription", method = RequestMethod.POST)
+	public @ResponseBody GetPrescriptionNameValueResponse addTestNameValue(
+			@RequestHeader(value="authToken", required=true) String authToken,
+			@RequestBody AddPrescriptionNameValue request
+			) {
+		GetPrescriptionNameValueResponse response = new GetPrescriptionNameValueResponse();
+		try {
+			response = manager.addPrescription(authToken, request);
+		} catch (Exception e) {
+			return ServiceUtils.setResponse(response, false, "Add prescription name values", e);
 		}
 		return response;
 	}

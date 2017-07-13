@@ -292,6 +292,64 @@
 			</xs:extension>		
 		</xs:complexContent>
 	</xs:complexType>
+	
+	<xs:element name="getPrescriptionNameValueResponse">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ns1:genericServiceResponse"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="addPrescriptionNameValue">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="healthRecordId" type="xs:string" />
+				<xs:element name="healthRecordDate" type="xs:dateTime" />
+				<xs:element name="individualId" type="xs:string" />
+				<xs:element name="prescriptionNameValue" type="tns:prescriptionNameValue" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="prescriptionNameValue">
+		<xs:complexContent>
+			<xs:extension base="tns:prescriptionNameValueMinAttrs">
+				<xs:sequence>
+					<xs:element name="id" type="xs:string" />
+					<xs:element name="prescriptionRx" type="tns:prescriptionRx" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="prescriptionNameValueMinAttrs">
+		<xs:sequence>
+			<xs:element name="prescriptionName" type="xs:string" />
+			<xs:element name="advice" type="xs:string" />
+			<xs:element name="observation" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="prescriptionRx">
+		<xs:complexContent>
+			<xs:extension base="tns:prescriptionRxMinAttrs">
+				<xs:sequence>
+					<xs:element name="id" type="xs:string" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="prescriptionRxMinAttrs">
+		<xs:sequence>
+			<xs:element name="medicineName" type="xs:string" />
+			<xs:element name="strength" type="xs:string" />
+			<xs:element name="dosage" type="xs:string" />
+			<xs:element name="duration" type="xs:string" />
+			<xs:element name="quantity" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
 
 </xs:schema>
 	

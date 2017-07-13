@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.psquickit.pojo.health.record.AddPrescriptionNameValue;
 import com.psquickit.pojo.health.record.AddShareHealthRecord;
 import com.psquickit.pojo.health.record.AddShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.AddTestNameValue;
@@ -14,6 +15,7 @@ import com.psquickit.pojo.health.record.DeleteDiagnosisResponse;
 import com.psquickit.pojo.health.record.DeletePrescriptionResponse;
 import com.psquickit.pojo.health.record.DeleteTestResponse;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
+import com.psquickit.pojo.health.record.GetPrescriptionNameValueResponse;
 import com.psquickit.pojo.health.record.GetShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
 import com.psquickit.pojo.health.record.ListHealthRecordResponse;
@@ -70,5 +72,7 @@ public interface HealthRecordManager {
 	ListShareHealthRecordResponse listShareHealthRecordToMe(String authToken) throws Exception;
 
 	ListHealthRecordResponse listHealthRecordSharedToMeByAUser(String authToken, long sharedByUserId) throws Exception;
+
+	GetPrescriptionNameValueResponse addPrescription(String authToken, AddPrescriptionNameValue request) throws Exception;
 	
 }

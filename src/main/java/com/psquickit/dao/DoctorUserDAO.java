@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.psquickit.dto.DoctorUserDTO;
-import com.psquickit.dto.UserDTO;
 
 @Repository
 public interface DoctorUserDAO extends JpaRepository<DoctorUserDTO, Long> {

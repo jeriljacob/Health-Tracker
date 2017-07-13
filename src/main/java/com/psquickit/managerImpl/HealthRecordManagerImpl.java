@@ -19,6 +19,7 @@ import com.psquickit.common.HandledException;
 import com.psquickit.dao.DiagnosisReportFileDAO;
 import com.psquickit.dao.HealthRecordDAO;
 import com.psquickit.dao.PrescriptionFileDAO;
+import com.psquickit.dao.PrescriptionRxDAO;
 import com.psquickit.dao.SharedHealthRecordDAO;
 import com.psquickit.dao.SharedUserRecordDAO;
 import com.psquickit.dao.SubTestNameValueDAO;
@@ -26,10 +27,12 @@ import com.psquickit.dao.TestReportFileDAO;
 import com.psquickit.dao.UserDAO;
 import com.psquickit.dao.UserDiagnosisReportDAO;
 import com.psquickit.dao.UserPrescriptionDAO;
+import com.psquickit.dao.UserPrescriptionNameValueDAO;
 import com.psquickit.dao.UserTestNameValueReportDAO;
 import com.psquickit.dto.DiagnosisReportFileDTO;
 import com.psquickit.dto.FileStoreDTO;
 import com.psquickit.dto.HealthRecordDTO;
+import com.psquickit.dto.PresciptionRxDTO;
 import com.psquickit.dto.PrescriptionFileDTO;
 import com.psquickit.dto.SharedHealthRecordDTO;
 import com.psquickit.dto.SharedUserRecordDTO;
@@ -38,10 +41,12 @@ import com.psquickit.dto.TestReportFileDTO;
 import com.psquickit.dto.UserDTO;
 import com.psquickit.dto.UserDiagnosisReportDTO;
 import com.psquickit.dto.UserPrescriptionDTO;
+import com.psquickit.dto.UserPrescriptionNameValueDTO;
 import com.psquickit.dto.UserTestNameValueReportDTO;
 import com.psquickit.manager.AuthenticationManager;
 import com.psquickit.manager.FileStoreManager;
 import com.psquickit.manager.HealthRecordManager;
+import com.psquickit.pojo.health.record.AddPrescriptionNameValue;
 import com.psquickit.pojo.health.record.AddShareHealthRecord;
 import com.psquickit.pojo.health.record.AddShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.AddTestNameValue;
@@ -51,6 +56,7 @@ import com.psquickit.pojo.health.record.DeleteTestResponse;
 import com.psquickit.pojo.health.record.Diagnosis;
 import com.psquickit.pojo.health.record.DiagnosisFile;
 import com.psquickit.pojo.health.record.GetHealthRecordResponse;
+import com.psquickit.pojo.health.record.GetPrescriptionNameValueResponse;
 import com.psquickit.pojo.health.record.GetShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.GetTestNameValueReportResponse;
 import com.psquickit.pojo.health.record.HealthRecord;
@@ -58,6 +64,8 @@ import com.psquickit.pojo.health.record.ListHealthRecordResponse;
 import com.psquickit.pojo.health.record.ListShareHealthRecordResponse;
 import com.psquickit.pojo.health.record.Prescription;
 import com.psquickit.pojo.health.record.PrescriptionFile;
+import com.psquickit.pojo.health.record.PrescriptionNameValue;
+import com.psquickit.pojo.health.record.PrescriptionRx;
 import com.psquickit.pojo.health.record.ShareRecordAttrs;
 import com.psquickit.pojo.health.record.TestNameValue;
 import com.psquickit.pojo.health.record.TestNameValueById;
@@ -111,6 +119,13 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 	
 	@Autowired
 	SharedHealthRecordDAO sharedHealthRecordDAO;
+	
+	@Autowired
+	UserPrescriptionNameValueDAO userPrescriptionNameValueDAO;
+	
+	@Autowired
+	PrescriptionRxDAO prescriptionRxDAO;
+	
 	
 	@Override
 	@Transactional
@@ -173,10 +188,15 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		List<UserDiagnosisReportDTO> udrdtos = hdto.getUserdiagnosisreports();
 		List<Diagnosis> ds = populateDiagnosis(udrdtos);
 		
+		List<UserPrescriptionNameValueDTO> upnvdtos = hdto.getUserprescriptionnamevalues();
+		
+		List<PrescriptionNameValue> pnvs=populatePrescriptionNameValue(upnvdtos);
 		HealthRecord hr = new HealthRecord();
 		hr.getTestNameValueReport().addAll(tnvrs);
 		hr.getPrescription().addAll(ps);
 		hr.getDiagnosis().addAll(ds);
+		hr.getPrescriptionNameValue().addAll(pnvs);
+	
 		hr.setHealthRecordDate(hdto.getRecordDate());
 		hr.setHealthRecordId(Long.toString(hdto.getId()));  
 		
@@ -815,5 +835,79 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		shr.getHealthRecordId().addAll(hrs);
 		return shr;
 	}
+	
+	@Override
+	@Transactional(rollbackOn=Exception.class)
+	public GetPrescriptionNameValueResponse addPrescription(String authToken, AddPrescriptionNameValue request)
+			throws Exception {
+		
+		long userId = authManager.getUserId(authToken);
+		HealthRecordDTO hdto = null;
+		
+		if(request.getPrescriptionNameValue()!= null){
+			if (request.getHealthRecordId() == null) {
+				//TODO Wahid: This can be a new prescription as well, so need to handle that
+				hdto = generateHealthRecordDTO(healthRecordDate, userId, forUserId);
+			} else {
+				hdto = getHealthRecordDTO(Long.parseLong(request.getHealthRecordId()), userId);
+			}
+			
+			PrescriptionNameValue prescriptionNameValue = request.getPrescriptionNameValue();
+			UserPrescriptionNameValueDTO prescriptionDTO = new UserPrescriptionNameValueDTO();
+			prescriptionDTO.setAdvice(prescriptionNameValue.getAdvice());
+			prescriptionDTO.setObservation(prescriptionNameValue.getObservation());
+			prescriptionDTO.setPrescriptionName(prescriptionNameValue.getPrescriptionName());
+			prescriptionDTO.setHealthrecord(hdto);
+			userPrescriptionNameValueDAO.save(prescriptionDTO);
 
+			if (prescriptionNameValue.getPrescriptionRx()!= null && prescriptionNameValue.getPrescriptionRx().size()>0){
+				for (PrescriptionRx item: prescriptionNameValue.getPrescriptionRx()) {
+					PresciptionRxDTO prxdto = new PresciptionRxDTO();
+					prxdto.setMedicineName(item.getMedicineName());
+					prxdto.setDosage(item.getDosage());
+					prxdto.setDuration(item.getDuration());
+					prxdto.setQuantity(item.getQuantity());
+					prxdto.setStrength(item.getStrength());
+					prxdto.setUserprescriptionnamevalue(prescriptionDTO);
+					prescriptionRxDAO.save(prxdto);
+				}
+			}
+			
+			healthRecordDAO.save(hdto);
+
+		}
+		GetPrescriptionNameValueResponse response = new GetPrescriptionNameValueResponse();
+		//TODO: Wahid, we are not putting anything back in the response, is that what we need?
+		return ServiceUtils.setResponse(response, true, "Add Prescription name value record");
+	}
+	
+	private List<PrescriptionNameValue> populatePrescriptionNameValue(List<UserPrescriptionNameValueDTO> updtos) {
+		List<PrescriptionNameValue> precriptions = Lists.newArrayList();
+		if (updtos != null) {
+			for(UserPrescriptionNameValueDTO updto: updtos) {
+				PrescriptionNameValue prescription = new PrescriptionNameValue();
+				prescription.setId(String.valueOf(updto.getId()));
+				prescription.setAdvice(updto.getAdvice());
+				prescription.setObservation(updto.getObservation());
+				prescription.setPrescriptionName(updto.getPrescriptionName());
+		
+				List<PresciptionRxDTO> prdtos = updto.getPresciptionrxs();
+				List<PrescriptionRx> prxs = Lists.newArrayList();
+				for (PresciptionRxDTO prdto: prdtos) {
+					PrescriptionRx prx = new PrescriptionRx();
+					prx.setId(String.valueOf(prdto.getId()));
+					prx.setMedicineName(prdto.getMedicineName());
+					prx.setDosage(prdto.getDosage());
+					prx.setDuration(prdto.getDuration());
+					prx.setQuantity(prdto.getQuantity());
+					prx.setStrength(prdto.getStrength());
+					prxs.add(prx);
+				}
+				prescription.getPrescriptionRx().addAll(prxs);
+				precriptions.add(prescription);
+			}
+		}
+		
+		return precriptions;
+	}
 }

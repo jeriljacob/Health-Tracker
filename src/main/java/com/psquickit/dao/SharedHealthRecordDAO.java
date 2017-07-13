@@ -18,5 +18,8 @@ public interface SharedHealthRecordDAO extends JpaRepository<SharedHealthRecordD
 
 	@Query("Select s.healthrecord from SharedHealthRecordDTO s where s.healthrecord.id in (:healthRecordIdsShared) and s.shareduserrecord.sharedTo.id = :sharedToUserId")
 	List<HealthRecordDTO> listSharedHealthRecordsIn(@Param("healthRecordIdsShared") List<Long> healthRecordIdsShared, @Param("sharedToUserId") long sharedToUserId);
+	
+	@Query("Select s.healthrecord from SharedHealthRecordDTO s where s.shareduserrecord.sharedBy.id = :sharedByUserId and s.shareduserrecord.sharedTo.id = :sharedToUserId")
+	List<HealthRecordDTO> listSharedHealthRecords(@Param("sharedToUserId") long sharedByUserId, @Param("sharedToUserId") long sharedToUserId);
 
 }

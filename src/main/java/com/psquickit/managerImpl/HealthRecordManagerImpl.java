@@ -130,6 +130,15 @@ public class HealthRecordManagerImpl implements HealthRecordManager {
 		return listHealthRecord(hrdtos);
 	}
 	
+	@Override
+	@Transactional
+	public ListHealthRecordResponse listHealthRecordSharedToMeByAUser(String authToken, long sharedByUserId) throws Exception {
+		//used by doctor user
+		long userId = authManager.getUserId(authToken);
+		List<HealthRecordDTO> hrdtos = sharedHealthRecordDAO.listSharedHealthRecords(sharedByUserId, userId);
+		return listHealthRecord(hrdtos);
+	}
+	
 	private ListHealthRecordResponse listHealthRecord(List<HealthRecordDTO> hrdtos) {
 		List<HealthRecord> hrs = Lists.newArrayList();
 		for (HealthRecordDTO hrdto: hrdtos) {

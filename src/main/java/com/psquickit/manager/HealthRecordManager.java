@@ -68,5 +68,7 @@ public interface HealthRecordManager {
 	ListShareHealthRecordResponse listShareHealthRecordByMe(String authToken) throws Exception;
 	
 	ListShareHealthRecordResponse listShareHealthRecordToMe(String authToken) throws Exception;
+
+	ListHealthRecordResponse listHealthRecordSharedToMeByAUser(String authToken, long sharedByUserId) throws Exception;
 	
 }
